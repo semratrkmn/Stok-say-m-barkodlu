@@ -250,7 +250,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF Pro Di
       <label class="login-label">Şifre</label>
       <input type="password" class="login-input" id="loginPass" placeholder="••••••" autocomplete="current-password">
     </div>
-    <button class="login-btn" onclick="doLogin()">GİRİŞ YAP</button>
+    <button class="login-btn" id="loginBtn" type="button">GİRİŞ YAP</button>
     <div class="login-err" id="loginErr"></div>
   </div>
 </div>
@@ -1210,9 +1210,24 @@ function renderLoginLogs(){
   c.innerHTML=logs.slice(0,50).map(l=>`<div class="log-row"><span class="log-time">${l.time}</span><span style="font-weight:600">${l.user}</span><span style="color:var(--muted);font-size:10px">${l.action} · ${l.role}</span></div>`).join('');
 }
 
-// ════ ENTER KEY ════
-document.addEventListener(‘keydown’,e=>{if(e.key===‘Enter’&&document.getElementById(‘loginUser’)===document.activeElement||document.getElementById(‘loginPass’)===document.activeElement)doLogin();});
-document.getElementById(‘loginPass’).addEventListener(‘keydown’,e=>{if(e.key===‘Enter’)doLogin();});
+// ════ ENTER KEY & LOGIN BUTTON ════
+document.addEventListener(‘DOMContentLoaded’, function() {
+var loginBtn = document.getElementById(‘loginBtn’);
+if(loginBtn) loginBtn.addEventListener(‘click’, doLogin);
+var loginPass = document.getElementById(‘loginPass’);
+if(loginPass) loginPass.addEventListener(‘keydown’, function(e){ if(e.key===‘Enter’) doLogin(); });
+var loginUser = document.getElementById(‘loginUser’);
+if(loginUser) loginUser.addEventListener(‘keydown’, function(e){ if(e.key===‘Enter’) doLogin(); });
+});
+// Fallback — script yüklendikten hemen sonra da dene
+(function(){
+function attachLogin(){
+var btn=document.getElementById(‘loginBtn’);
+if(btn && !btn._bound){ btn.addEventListener(‘click’,doLogin); btn._bound=true; }
+}
+setTimeout(attachLogin, 100);
+setTimeout(attachLogin, 500);
+})();
 </script>
 
 </body>
