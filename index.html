@@ -44,9 +44,18 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF Pro Di
 .login-card::before{content:’’;position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(135deg,#00d4ff,#00ff9d);}
 .login-field{margin-bottom:16px;}
 .login-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#5a7090;text-transform:uppercase;margin-bottom:6px;display:block;}
-.login-input{width:100%;background:#111828;border:1px solid #1e2d45;border-radius:12px;color:#e8edf5;font-family:inherit;font-size:16px;padding:13px 16px;outline:none;transition:.2s;}
-.login-input:focus{border-color:#00d4ff;box-shadow:0 0 0 3px rgba(0,212,255,.1);}
-.login-btn{width:100%;padding:15px;background:linear-gradient(135deg,#00d4ff,#00ff9d);color:#000;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:800;letter-spacing:2px;cursor:pointer;margin-top:8px;}
+.login-input{width:100%;background:#1c2538;border:1px solid #253550;border-radius:12px;color:#e8edf5;font-family:inherit;font-size:16px;padding:14px 16px;outline:none;transition:.2s;-webkit-appearance:none;appearance:none;}
+.login-input:focus{border-color:#00d4ff;}
+.login-input:-webkit-autofill,
+.login-input:-webkit-autofill:hover,
+.login-input:-webkit-autofill:focus{
+-webkit-box-shadow:0 0 0 1000px #1c2538 inset !important;
+-webkit-text-fill-color:#e8edf5 !important;
+border-color:#253550 !important;
+transition:background-color 5000s ease-in-out 0s;
+}
+.login-btn{width:100%;padding:15px;background:linear-gradient(135deg,#00d4ff,#00ff9d);color:#000;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:800;letter-spacing:2px;cursor:pointer;margin-top:4px;-webkit-appearance:none;appearance:none;display:block;touch-action:manipulation;}
+.login-btn:active{opacity:.85;}
 .login-err{color:#ff4757;font-size:12px;text-align:center;margin-top:10px;min-height:18px;}
 
 /* HEADER */
@@ -244,20 +253,26 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF Pro Di
   <div class="login-card">
     <div class="login-field">
       <label class="login-label">Kullanıcı Adı</label>
-      <input type="text" class="login-input" id="loginUser" placeholder="kullanıcı adı" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+      <input type="text" class="login-input" id="loginUser"
+        placeholder="kullanıcı adı"
+        autocomplete="off" autocapitalize="none"
+        autocorrect="off" spellcheck="false">
     </div>
     <div class="login-field">
       <label class="login-label">Şifre</label>
-      <div style="position:relative">
-        <input type="password" class="login-input" id="loginPass" placeholder="••••••" autocomplete="current-password" style="padding-right:70px">
-        <button type="button" id="togglePass"
-          style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#5a7090;font-size:12px;font-weight:700;cursor:pointer;padding:4px 6px;letter-spacing:.5px;font-family:inherit">
+      <div style="position:relative;display:flex;align-items:center">
+        <input type="password" class="login-input" id="loginPass"
+          placeholder="şifre"
+          autocomplete="off"
+          style="padding-right:76px;flex:1">
+        <span id="togglePass"
+          style="position:absolute;right:14px;color:#00d4ff;font-size:12px;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;padding:8px 4px;letter-spacing:.5px">
           GÖSTER
-        </button>
+        </span>
       </div>
     </div>
-    <button type="button" class="login-btn" id="loginBtn" style="margin-top:12px">GİRİŞ YAP</button>
-    <div class="login-err" id="loginErr"></div>
+    <div id="loginErr" style="color:#ff4757;font-size:13px;text-align:center;min-height:20px;margin:8px 0"></div>
+    <button type="button" id="loginBtn" class="login-btn">GİRİŞ YAP</button>
   </div>
 </div>
 
@@ -1216,29 +1231,35 @@ function renderLoginLogs(){
   c.innerHTML=logs.slice(0,50).map(l=>`<div class="log-row"><span class="log-time">${l.time}</span><span style="font-weight:600">${l.user}</span><span style="color:var(--muted);font-size:10px">${l.action} · ${l.role}</span></div>`).join('');
 }
 
-// ════ LOGIN EVENTS — en sade hali ════
+// ════ LOGIN EVENTS ════
 window.onload = function() {
 var btn  = document.getElementById(‘loginBtn’);
-var user = document.getElementById(‘loginUser’);
-var pass = document.getElementById(‘loginPass’);
 var tog  = document.getElementById(‘togglePass’);
+var pass = document.getElementById(‘loginPass’);
+var user = document.getElementById(‘loginUser’);
 
-if(btn)  btn.onclick  = doLogin;
-if(user) user.onkeydown = function(e){ if(e.keyCode===13) doLogin(); };
-if(pass) pass.onkeydown = function(e){ if(e.keyCode===13) doLogin(); };
+// Giriş yap butonu
+if (btn) {
+btn.onclick = function() { doLogin(); };
+}
 
-if(tog) tog.onmousedown = tog.ontouchstart = function(e){
-e.preventDefault();
-pass.type = ‘text’;
-tog.textContent = ‘GİZLE’;
-tog.style.color = ‘#00d4ff’;
+// Enter tuşu
+function onEnter(e) {
+if (e.keyCode === 13 || e.which === 13) { doLogin(); }
+}
+if (user) user.onkeyup = onEnter;
+if (pass) pass.onkeyup = onEnter;
+
+// Şifre göster/gizle — span tıklaması
+var passVisible = false;
+if (tog) {
+tog.onclick = function() {
+passVisible = !passVisible;
+pass.type = passVisible ? ‘text’ : ‘password’;
+tog.textContent = passVisible ? ‘GİZLE’ : ‘GÖSTER’;
+tog.style.color = passVisible ? ‘#00ff9d’ : ‘#00d4ff’;
 };
-if(tog) tog.onmouseup = tog.ontouchend = function(e){
-e.preventDefault();
-pass.type = ‘password’;
-tog.textContent = ‘GÖSTER’;
-tog.style.color = ‘#5a7090’;
-};
+}
 };
 </script>
 
