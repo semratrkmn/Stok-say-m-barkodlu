@@ -13,32 +13,41 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 <style>
 :root{
-  --bg:#0a0e1a;--surface:#111828;--card:#161e2e;--card2:#1c2538;
-  --border:#1e2d45;--border2:#253550;
-  --accent:#00d4ff;--accent2:#00ff9d;--accent3:#7c3aed;
-  --text:#e8edf5;--muted:#5a7090;--muted2:#3d5470;
-  --success:#00ff9d;--danger:#ff4757;--warn:#ffb300;
-  --grad:linear-gradient(135deg,#00d4ff,#00ff9d);
-  --grad2:linear-gradient(135deg,#7c3aed,#00d4ff);
-  --grad3:linear-gradient(135deg,#ff4757,#ff8c42);
+  --bg:#0a0e1a !important;
+  --surface:#111828 !important;
+  --card:#161e2e !important;
+  --card2:#1c2538 !important;
+  --border:#1e2d45 !important;
+  --border2:#253550 !important;
+  --accent:#00d4ff !important;
+  --accent2:#00ff9d !important;
+  --accent3:#7c3aed !important;
+  --text:#e8edf5 !important;
+  --muted:#5a7090 !important;
+  --muted2:#3d5470 !important;
+  --success:#00ff9d !important;
+  --danger:#ff4757 !important;
+  --warn:#ffb300 !important;
+  --grad:linear-gradient(135deg,#00d4ff,#00ff9d) !important;
+  --grad2:linear-gradient(135deg,#7c3aed,#00d4ff) !important;
+  --grad3:linear-gradient(135deg,#ff4757,#ff8c42) !important;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF Pro Display','Segoe UI',sans-serif;min-height:100vh;overscroll-behavior:none;}
 
-/* LOGIN */
-#loginScreen{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0a0e1a 0%,#0d1528 50%,#0a1420 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;}
+#loginScreen{position:fixed;inset:0;z-index:9999;background:#0a0e1a;background:linear-gradient(135deg,#0a0e1a 0%,#0d1528 50%,#0a1420 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;}
 #loginScreen.hide{display:none;}
-.login-logo{font-size:48px;margin-bottom:8px;}
-.login-title{font-size:28px;font-weight:900;background:var(–grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}
-.login-sub{font-size:12px;color:var(–muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:40px;}
-.login-card{background:var(–card);border:1px solid var(–border2);border-radius:24px;padding:28px 24px;width:100%;max-width:360px;position:relative;overflow:hidden;}
-.login-card::before{content:’’;position:absolute;top:0;left:0;right:0;height:2px;background:var(–grad);}
+.login-logo{font-size:48px;margin-bottom:8px;color:#00d4ff;}
+.login-title{font-size:28px;font-weight:900;background:linear-gradient(135deg,#00d4ff,#00ff9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}
+.login-sub{font-size:12px;color:#5a7090;letter-spacing:3px;text-transform:uppercase;margin-bottom:40px;}
+.login-card{background:#161e2e;border:1px solid #253550;border-radius:24px;padding:28px 24px;width:100%;max-width:360px;position:relative;overflow:hidden;}
+.login-card::before{content:’’;position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(135deg,#00d4ff,#00ff9d);}
 .login-field{margin-bottom:16px;}
-.login-label{font-size:10px;font-weight:700;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-bottom:6px;display:block;}
-.login-input{width:100%;background:var(–surface);border:1px solid var(–border);border-radius:12px;color:var(–text);font-family:inherit;font-size:16px;padding:13px 16px;outline:none;transition:.2s;}
-.login-input:focus{border-color:var(–accent);box-shadow:0 0 0 3px rgba(0,212,255,.1);}
-.login-btn{width:100%;padding:15px;background:var(–grad);color:#000;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:800;letter-spacing:2px;cursor:pointer;margin-top:8px;}
-.login-err{color:var(–danger);font-size:12px;text-align:center;margin-top:10px;min-height:18px;}
+.login-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#5a7090;text-transform:uppercase;margin-bottom:6px;display:block;}
+.login-input{width:100%;background:#111828;border:1px solid #1e2d45;border-radius:12px;color:#e8edf5;font-family:inherit;font-size:16px;padding:13px 16px;outline:none;transition:.2s;}
+.login-input:focus{border-color:#00d4ff;box-shadow:0 0 0 3px rgba(0,212,255,.1);}
+.login-btn{width:100%;padding:15px;background:linear-gradient(135deg,#00d4ff,#00ff9d);color:#000;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:800;letter-spacing:2px;cursor:pointer;margin-top:8px;}
+.login-err{color:#ff4757;font-size:12px;text-align:center;margin-top:10px;min-height:18px;}
 
 /* HEADER */
 .header{background:rgba(10,14,26,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(–border);padding:11px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
@@ -586,25 +595,32 @@ let activeSessions = JSON.parse(localStorage.getItem('activeSessions')||'[]');
 const MAX_SESSIONS = 50;
 
 function doLogin(){
-  const u=document.getElementById('loginUser').value.trim().toLowerCase();
-  const p=document.getElementById('loginPass').value;
-  document.getElementById('loginErr').textContent='';
-  const user=USERS.find(x=>x.username.toLowerCase()===u&&x.password===p);
-  if(!user){document.getElementById('loginErr').textContent='Kullanıcı adı veya şifre hatalı';return;}
-  // Aktif session sayısı
-  const now=Date.now();
-  activeSessions=activeSessions.filter(s=>now-s.time<8*60*60*1000); // 8 saat
-  const mySession=activeSessions.find(s=>s.uid===user.id);
-  if(!mySession&&activeSessions.length>=MAX_SESSIONS){document.getElementById('loginErr').textContent='Maksimum eş zamanlı oturum sayısına ulaşıldı ('+MAX_SESSIONS+')';return;}
-  if(!mySession)activeSessions.push({uid:user.id,time:now});
-  localStorage.setItem('activeSessions',JSON.stringify(activeSessions));
-  // Log
-  const logs=JSON.parse(localStorage.getItem('loginLogs')||'[]');
-  logs.unshift({user:user.name,username:user.username,time:tsNow(),role:user.role,action:'GİRİŞ'});
-  if(logs.length>200)logs.splice(200);
-  localStorage.setItem('loginLogs',JSON.stringify(logs));
-  currentUser=user;
-  startApp();
+  try {
+    const uEl=document.getElementById('loginUser');
+    const pEl=document.getElementById('loginPass');
+    const errEl=document.getElementById('loginErr');
+    if(!uEl||!pEl){return;}
+    const u=(uEl.value||'').trim().toLowerCase();
+    const p=(pEl.value||'');
+    errEl.textContent='';
+    if(!u||!p){errEl.textContent='Kullanıcı adı ve şifre girin';return;}
+    const user=USERS.find(function(x){return x.username.toLowerCase()===u && x.password===p;});
+    if(!user){errEl.textContent='Kullanıcı adı veya şifre hatalı';return;}
+    const now=Date.now();
+    activeSessions=activeSessions.filter(function(s){return now-s.time<8*60*60*1000;});
+    const mySession=activeSessions.find(function(s){return s.uid===user.id;});
+    if(!mySession&&activeSessions.length>=MAX_SESSIONS){errEl.textContent='Maksimum oturum sayısına ulaşıldı ('+MAX_SESSIONS+')';return;}
+    if(!mySession)activeSessions.push({uid:user.id,time:now});
+    localStorage.setItem('activeSessions',JSON.stringify(activeSessions));
+    const logs=JSON.parse(localStorage.getItem('loginLogs')||'[]');
+    logs.unshift({user:user.name,username:user.username,time:tsNow(),role:user.role,action:'GİRİŞ'});
+    if(logs.length>200)logs.splice(200);
+    localStorage.setItem('loginLogs',JSON.stringify(logs));
+    currentUser=user;
+    startApp();
+  } catch(e) {
+    document.getElementById('loginErr').textContent='Hata: '+e.message;
+  }
 }
 
 function showUserInfo(){
