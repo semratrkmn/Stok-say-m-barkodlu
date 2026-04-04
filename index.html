@@ -556,6 +556,7 @@ function renderScanForm(){
       <input type="${f.type}" class="fi" id="fi-${f.key}" placeholder="${f.label}..." inputmode="${f.im}" ${extra}>
     </div>`;
     if(f.key==='barcode')h+=`<div class="bc-valid" id="bcValid"></div>`;
+    // Barkod alanı her zaman form içinde kalır — kamera kapanınca kaybolmaz
   });
   const qc=fs['qty']||{},uc=fs['unit']||{};
   if(qc.show||uc.show){
@@ -609,17 +610,31 @@ function startScan(target){
   });
 }
 function stopCam(){
-  try{Quagga.stop();}catch(e){}camActive=false;
-  document.getElementById('interactive').style.display='none';document.getElementById('scanOv').classList.remove('show');document.getElementById('cameraWrap').classList.remove('show');
-  document.getElementById('btnBarcode').className='scan-btn';document.getElementById('btnSeri').className='scan-btn';setStatus('Hazır',false);
+  try{Quagga.stop();}catch(e){}
+  camActive=false;
+  // Sadece kamerayı kapat, formu YENİDEN RENDER ETME — mevcut değerler korunur
+  const iEl=document.getElementById('interactive');if(iEl)iEl.style.display='none';
+  const ov=document.getElementById('scanOv');if(ov)ov.classList.remove('show');
+  const cw=document.getElementById('cameraWrap');if(cw)cw.classList.remove('show');
+  const bb=document.getElementById('btnBarcode');if(bb)bb.className='scan-btn';
+  const bs=document.getElementById('btnSeri');if(bs)bs.className='scan-btn';
+  setStatus('Hazır',false);
 }
 function onBarcodeInput(){
-  const inp=document.getElementById('fi-barcode');if(!inp)return;const code=inp.value.trim();
-  showBCValid('bcValid',code);if(!code)return;
+  const inp=document.getElementById('fi-barcode');if(!inp)return;
+  const code=inp.value.trim();
+  showBCValid('bcValid',code);
+  if(!code)return;
+  // 1) Önce ürün kartlarında ara
   const pc=products.find(p=>p.barcode===code);
   const ni=document.getElementById('fi-name');
-  if(pc&&ni&&!ni.value)ni.value=pc.name;
-  else if(!pc){const ex=items.find(i=>i.barcode===code);if(ex&&ni&&!ni.value)ni.value=ex.name||'';}
+  if(pc){
+    if(ni)ni.value=pc.name; // Ürün kartından isim doldur
+    return;
+  }
+  // 2) Ürün kartı yoksa önceki kayıtlarda ara
+  const ex=items.find(i=>i.barcode===code);
+  if(ex&&ni&&!ni.value)ni.value=ex.name||'';
 }
 
 // ══ ÜRÜN KARTLARI ══
@@ -907,10 +922,12 @@ function addItem(){
   const ex=items.find(i=>i.barcode&&i.barcode===vals.barcode&&vals.barcode&&i.listId===al.id);
   if(ex&&vals.barcode){ex.qty=(ex.qty||0)+qty;ex.lastUpdated=now;showFlash('↑ Miktar güncellendi — '+now,'ok');}
   else{
-    items.push({id:Date.now(),barcode:vals.barcode||'',seri:vals.seri||'',name:vals.name||'',qty,unit:vals.unit||'Adet',note:vals.note||'',branch:meta.branch||'',countDate:meta.date||'',person:meta.person||'',listId:al.id,listName:al.name,hasProductCard:hasPC,isManualBarcode:isManual,addedAt:now,lastUpdated:now});
+    const newHasPC=!!products.find(p=>p.barcode===vals.barcode);
+    items.push({id:Date.now(),barcode:vals.barcode||'',seri:vals.seri||'',name:vals.name||'',qty,unit:vals.unit||'Adet',note:vals.note||'',branch:meta.branch||'',countDate:meta.date||'',person:meta.person||'',listId:al.id,listName:al.name,hasProductCard:newHasPC,isManualBarcode:isManual,addedAt:now,lastUpdated:now});
     showFlash('✓ Kaydedildi → '+al.name+' — '+now,'ok');
-    // Ürün kartı yoksa otomatik oluştur
-    if(vals.barcode&&!hasPC)triggerAutoPC(vals.barcode,vals.name,isManual);
+    // Ürün kartı yoksa VE bu barkod daha önce hiç kaydedilmemişse modal göster
+    const alreadySaved=items.filter(i=>i.barcode===vals.barcode&&i.listId===al.id).length>1;
+    if(vals.barcode&&!newHasPC&&!alreadySaved)triggerAutoPC(vals.barcode,vals.name,isManual);
   }
   save();updateCount();
   FIELD_DEFS.forEach(f=>{const inp=document.getElementById('fi-'+f.key);if(inp){inp.classList.remove('err');if(f.key==='qty')inp.value='1';else if(f.key==='unit')inp.value='Adet';else inp.value='';}});
