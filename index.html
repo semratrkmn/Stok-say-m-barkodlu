@@ -331,16 +331,51 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF Pro Di
   </div>
 </div>
 
+<!-- USER INFO MODAL -->
+
+<div class="modal-bg" id="userInfoModal">
+  <div class="modal-box" style="max-width:340px">
+    <div class="modal-header">
+      <div class="modal-title">Kullanıcı Bilgileri</div>
+      <button class="modal-close" onclick="closeModal('userInfoModal')">✕</button>
+    </div>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--grad2);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 10px">👤</div>
+      <div style="font-size:17px;font-weight:800" id="uiName">—</div>
+      <div id="uiRoleBadge" style="display:inline-block;margin-top:5px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:1px"></div>
+    </div>
+    <div style="background:var(--surface);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;font-size:12px">
+        <span style="color:var(--muted)">Kullanıcı Adı</span>
+        <span id="uiUsername" style="font-weight:600;font-family:'Courier New'"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;border-top:1px solid var(--border);padding-top:10px">
+        <span style="color:var(--muted)">Sicil No</span>
+        <span id="uiSicil" style="font-weight:600"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;border-top:1px solid var(--border);padding-top:10px">
+        <span style="color:var(--muted)">Lokasyon</span>
+        <span id="uiLok" style="font-weight:600;text-align:right;max-width:160px"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;border-top:1px solid var(--border);padding-top:10px">
+        <span style="color:var(--muted)">Rol</span>
+        <span id="uiRole" style="font-weight:600"></span>
+      </div>
+    </div>
+    <button onclick="doLogoutFromModal()" style="width:100%;padding:12px;background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.25);border-radius:12px;color:var(--danger);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">↩ Çıkış Yap</button>
+  </div>
+</div>
+
 <!-- HEADER -->
 
 <div class="header">
   <div class="hdr-left"><div class="pulse-dot"></div><span class="app-name">Sayım✦</span></div>
   <div class="hdr-right">
     <span class="count-badge" id="headerCount">0</span>
-    <div class="user-pill" onclick="doLogout()">
+    <div class="user-pill" onclick="showUserInfo()">
       <span id="hdrUserName">—</span>
       <span class="user-role" id="hdrUserRole">—</span>
-      <span style="font-size:10px;color:var(--muted)">↩</span>
+      <span style="font-size:10px;color:var(--muted)">▾</span>
     </div>
   </div>
 </div>
@@ -572,8 +607,24 @@ function doLogin(){
   startApp();
 }
 
+function showUserInfo(){
+  if(!currentUser)return;
+  document.getElementById('uiName').textContent=currentUser.name;
+  document.getElementById('uiUsername').textContent=currentUser.username;
+  document.getElementById('uiSicil').textContent=currentUser.sicil||'—';
+  const rok=document.getElementById('uiRoleBadge');
+  rok.textContent=currentUser.role==='admin'?'ADMIN':'KULLANICI';
+  rok.className='';rok.style.cssText=currentUser.role==='admin'?'display:inline-block;margin-top:5px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:1px;background:rgba(124,58,237,.15);color:#a78bfa;border:1px solid rgba(124,58,237,.3)':'display:inline-block;margin-top:5px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:1px;background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.2)';
+  document.getElementById('uiRole').textContent=currentUser.role==='admin'?'Admin':'Kullanıcı';
+  let lok=currentUser.lokasyon==='Sube'?(currentUser.il||'—')+' / '+(currentUser.sube||'—'):currentUser.lokasyon||'—';
+  document.getElementById('uiLok').textContent=lok;
+  document.getElementById('userInfoModal').classList.add('show');
+}
+function doLogoutFromModal(){
+  closeModal('userInfoModal');
+  doLogout();
+}
 function doLogout(){
-  if(!confirm('Çıkış yapmak istiyor musunuz?'))return;
   // Log
   const logs=JSON.parse(localStorage.getItem('loginLogs')||'[]');
   logs.unshift({user:currentUser.name,username:currentUser.username,time:tsNow(),role:currentUser.role,action:'ÇIKIŞ'});
