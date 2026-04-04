@@ -7,27 +7,66 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Stok Sayım">
+<meta name="apple-mobile-web-app-title" content="Sayım✦">
 <meta name="theme-color" content="#0d0f14">
-<title>Stok Sayım</title>
-
+<title>Sayım✦</title>
 <script>
-// ── APP VERSION — her güncellemede bu sayıyı artır ──
-const APP_VERSION = '1.0.0';
+const APP_VERSION='4.0.0';
 
-// ── Manifest ──
-const manifest = {
-  name: "Stok Sayım", short_name: "StokSayım",
-  description: "Şube stok sayım ve barkod okuma uygulaması",
-  start_url: "./", display: "standalone",
-  background_color: "#0d0f14", theme_color: "#0d0f14", orientation: "portrait",
-  icons: [
-    { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%230d0f14' rx='32'/><text y='130' x='96' text-anchor='middle' font-size='110' font-family='serif'>📦</text></svg>", sizes: "192x192", type: "image/svg+xml" },
-    { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%230d0f14' rx='80'/><text y='360' x='256' text-anchor='middle' font-size='300' font-family='serif'>📦</text></svg>", sizes: "512x512", type: "image/svg+xml" }
-  ]
+// ── İkon: modern gradient kutu + barkod çizgileri ──
+function makeIcon(size){
+const c=document.createElement(‘canvas’);c.width=c.height=size;
+const ctx=c.getContext(‘2d’);
+const r=size*0.18;
+// arka plan gradient
+const g=ctx.createLinearGradient(0,0,size,size);
+g.addColorStop(0,’#1a1f35’);g.addColorStop(1,’#0d0f14’);
+ctx.fillStyle=g;
+ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(size-r,0);ctx.quadraticCurveTo(size,0,size,r);
+ctx.lineTo(size,size-r);ctx.quadraticCurveTo(size,size,size-r,size);
+ctx.lineTo(r,size);ctx.quadraticCurveTo(0,size,0,size-r);
+ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();ctx.fill();
+// parlak kenar
+const stroke=ctx.createLinearGradient(0,0,size,size);
+stroke.addColorStop(0,’#00d4ff’);stroke.addColorStop(1,’#00ff9d’);
+ctx.strokeStyle=stroke;ctx.lineWidth=size*0.025;ctx.stroke();
+// barkod çizgileri
+const bx=size*0.18,by=size*0.28,bw=size*0.64,bh=size*0.32;
+const bars=[0.06,0.04,0.08,0.03,0.06,0.04,0.08,0.03,0.06,0.04,0.08,0.03,0.06,0.04,0.08];
+let cx2=bx;
+bars.forEach((w,i)=>{
+const g2=ctx.createLinearGradient(0,by,0,by+bh);
+g2.addColorStop(0,i%2===0?’#00d4ff’:’#00ff9d’);
+g2.addColorStop(1,i%2===0?’#00ff9d’:’#00d4ff’);
+ctx.fillStyle=i%2===0?g2:‘rgba(255,255,255,0.08)’;
+ctx.fillRect(cx2,by,bw*w,bh);
+cx2+=bw*w;
+});
+// ✦ yıldız
+ctx.font=`bold ${size*0.18}px serif`;
+ctx.textAlign=‘center’;
+const tg=ctx.createLinearGradient(0,size*0.65,0,size*0.85);
+tg.addColorStop(0,’#00d4ff’);tg.addColorStop(1,’#00ff9d’);
+ctx.fillStyle=tg;
+ctx.fillText(‘Sayım✦’,size/2,size*0.82);
+return c.toDataURL();
+}
+
+window.addEventListener(‘DOMContentLoaded’,()=>{
+const ico=document.createElement(‘link’);
+ico.rel=‘apple-touch-icon’;ico.href=makeIcon(180);
+document.head.appendChild(ico);
+});
+
+const manifest={
+name:‘Sayım✦’,short_name:‘Sayım✦’,
+description:‘Şube stok sayım uygulaması’,
+start_url:’./’,display:‘standalone’,
+background_color:’#0d0f14’,theme_color:’#0d0f14’,orientation:‘portrait’,
+icons:[{src:makeIcon(192),sizes:‘192x192’,type:‘image/png’},{src:makeIcon(512),sizes:‘512x512’,type:‘image/png’}]
 };
-const mBlob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
-document.write('<link rel="manifest" href="'+URL.createObjectURL(mBlob)+'">');
+const mBlob=new Blob([JSON.stringify(manifest)],{type:‘application/json’});
+document.write(’<link rel="manifest" href="'+URL.createObjectURL(mBlob)+'">’);
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -35,77 +74,77 @@ document.write('<link rel="manifest" href="'+URL.createObjectURL(mBlob)+'">');
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 
 <style>
-:root {
-  --bg:#0d0f14; --surface:#161923; --card:#1e2330; --border:#2a3045;
-  --accent:#00d4ff; --accent2:#00ff9d; --text:#e8edf5; --muted:#6b7a99;
-  --success:#00ff9d; --danger:#ff4757; --warn:#ffb300;
+:root{
+  --bg:#0d0f14;--surface:#161923;--card:#1e2330;--border:#2a3045;
+  --accent:#00d4ff;--accent2:#00ff9d;--text:#e8edf5;--muted:#6b7a99;
+  --success:#00ff9d;--danger:#ff4757;--warn:#ffb300;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;min-height:100vh;overscroll-behavior:none;}
 
-/* ── UPDATE BANNER ── */
-#updateBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:999;
-  background:linear-gradient(135deg,#1a1500,#0d0f14);
-  border-bottom:2px solid var(--warn);padding:14px 16px;animation:slideDown .4s ease;}
-@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+/* BANNERS */
+#updateBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:linear-gradient(135deg,#1a1500,#0d0f14);border-bottom:2px solid var(--warn);padding:14px 16px;animation:slideDown .4s ease;}
 #updateBanner.show{display:block;}
-.ub-row{display:flex;align-items:center;gap:12px;}
-.ub-icon{font-size:28px;}
-.ub-text{flex:1;}
-.ub-title{font-size:13px;font-weight:bold;color:var(--warn);letter-spacing:1px;}
-.ub-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.ub-actions{display:flex;gap:8px;margin-top:10px;}
-.ub-btn{flex:1;padding:10px;border:none;border-radius:6px;font-family:'Courier New',monospace;font-size:11px;font-weight:bold;cursor:pointer;letter-spacing:1px;}
-.ub-btn.update{background:var(--warn);color:#000;}
-.ub-btn.later{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
-
-/* ── INSTALL BANNER ── */
-#installBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:998;
-  background:linear-gradient(135deg,#1e2330,#0d0f14);
-  border-bottom:1px solid var(--accent);padding:14px 16px;animation:slideDown .4s ease;}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+#installBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:998;background:linear-gradient(135deg,#1e2330,#0d0f14);border-bottom:1px solid var(--accent);padding:14px 16px;}
 #installBanner.show{display:block;}
-.ib-row{display:flex;align-items:center;gap:12px;}
-.ib-icon{font-size:32px;}
-.ib-text{flex:1;}
+.ub-row,.ib-row{display:flex;align-items:center;gap:12px;}
+.ub-icon,.ib-icon{font-size:28px;}
+.ub-text,.ib-text{flex:1;}
+.ub-title{font-size:13px;font-weight:bold;color:var(--warn);letter-spacing:1px;}
 .ib-title{font-size:13px;font-weight:bold;color:var(--accent);letter-spacing:1px;}
-.ib-sub{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
-.ib-actions{display:flex;gap:8px;margin-top:10px;}
-.ib-btn{flex:1;padding:10px;border:none;border-radius:6px;font-family:'Courier New',monospace;font-size:11px;font-weight:bold;cursor:pointer;letter-spacing:1px;}
+.ub-sub,.ib-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.ub-actions,.ib-actions{display:flex;gap:8px;margin-top:10px;}
+.ub-btn,.ib-btn{flex:1;padding:10px;border:none;border-radius:6px;font-family:'Courier New',monospace;font-size:11px;font-weight:bold;cursor:pointer;letter-spacing:1px;}
+.ub-btn.update{background:var(--warn);color:#000;}
+.ub-btn.later,.ib-btn.dismiss{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
 .ib-btn.install{background:var(--accent2);color:#000;}
-.ib-btn.dismiss{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
 
-/* ── iOS GUIDE ── */
+/* iOS GUIDE */
 #iosGuide{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.85);align-items:flex-end;justify-content:center;}
 #iosGuide.show{display:flex;}
 .ios-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:24px 20px 40px;max-width:480px;width:100%;border-top:1px solid var(--border);}
-.ios-close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;margin-top:-4px;}
+.ios-close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;}
 .ios-title{font-size:15px;font-weight:bold;color:var(--accent);margin-bottom:16px;letter-spacing:2px;}
 .ios-steps{list-style:none;display:flex;flex-direction:column;gap:14px;}
 .ios-steps li{display:flex;align-items:flex-start;gap:12px;font-size:13px;line-height:1.5;}
 .ios-num{background:var(--accent);color:#000;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;flex-shrink:0;margin-top:1px;}
 
-/* ── LAYOUT ── */
-.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+/* CONFIRM MODAL */
+#confirmModal{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.85);align-items:center;justify-content:center;padding:20px;}
+#confirmModal.show{display:flex;}
+.confirm-box{background:var(--card);border:1px solid var(--danger);border-radius:16px;padding:24px;max-width:340px;width:100%;text-align:center;}
+.confirm-icon{font-size:40px;margin-bottom:12px;}
+.confirm-title{font-size:15px;font-weight:bold;color:var(--danger);margin-bottom:8px;letter-spacing:1px;}
+.confirm-msg{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:20px;}
+.confirm-actions{display:flex;gap:10px;}
+.confirm-yes{flex:1;padding:12px;background:var(--danger);color:#fff;border:none;border-radius:8px;font-family:'Courier New',monospace;font-size:12px;font-weight:bold;cursor:pointer;}
+.confirm-no{flex:1;padding:12px;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:8px;font-family:'Courier New',monospace;font-size:12px;cursor:pointer;}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
 .header-left{display:flex;align-items:center;gap:10px;}
 .logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);box-shadow:0 0 8px var(--accent2);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.header-title{font-size:13px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;}
+.app-name{font-size:16px;font-weight:bold;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;}
 .header-right{display:flex;align-items:center;gap:8px;}
-.item-count{background:var(--accent);color:#000;font-size:11px;font-weight:bold;padding:3px 9px;border-radius:20px;}
-.update-dot{width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 6px var(--warn);display:none;animation:pulse 1s infinite;}
+.item-count{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;font-size:11px;font-weight:bold;padding:3px 9px;border-radius:20px;}
+.update-dot{width:8px;height:8px;border-radius:50%;background:var(--warn);display:none;animation:pulse 1s infinite;}
 .update-dot.show{display:block;}
 
+/* TABS */
 .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
-.tab{flex:1;padding:12px;text-align:center;font-size:11px;letter-spacing:2px;color:var(--muted);cursor:pointer;border:none;background:none;text-transform:uppercase;border-bottom:2px solid transparent;}
+.tab{flex:1;padding:11px 4px;text-align:center;font-size:10px;letter-spacing:1px;color:var(--muted);cursor:pointer;border:none;background:none;text-transform:uppercase;border-bottom:2px solid transparent;}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
-.screen{display:none;padding:16px;padding-bottom:80px;}
+.screen{display:none;padding:16px;padding-bottom:90px;}
 .screen.active{display:block;}
 
-/* ── CAMERA ── */
-.camera-wrap{position:relative;width:100%;max-width:420px;margin:0 auto 14px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000;aspect-ratio:4/3;}
-#interactive{width:100%;height:100%;display:none;}
-#interactive video{width:100%!important;height:100%!important;object-fit:cover;display:block;}
-#interactive canvas.drawingBuffer{display:none;}
+/* CAMERA */
+.camera-wrap{position:relative;width:100%;max-width:420px;margin:0 auto 12px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000;aspect-ratio:4/3;display:none;}
+.camera-wrap.show{display:block;}
+#interactive,#stokInteractive{width:100%;height:100%;display:none;}
+#interactive video,#stokInteractive video{width:100%!important;height:100%!important;object-fit:cover;display:block;}
+#interactive canvas.drawingBuffer,#stokInteractive canvas.drawingBuffer{display:none;}
 .scan-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;}
 .scan-overlay.show{display:flex;}
 .scan-frame{width:72%;aspect-ratio:3/1;border:2px solid var(--accent);border-radius:4px;position:relative;box-shadow:0 0 0 2000px rgba(0,0,0,.45);}
@@ -116,25 +155,45 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .corner.tr{top:-2px;right:-2px;border-width:2px 2px 0 0}
 .corner.bl{bottom:-2px;left:-2px;border-width:0 0 2px 2px}
 .corner.br{bottom:-2px;right:-2px;border-width:0 2px 2px 0}
-.cam-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:12px;letter-spacing:1px;gap:10px;}
-.cam-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;max-width:420px;margin:0 auto 12px;padding:14px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;letter-spacing:2px;cursor:pointer;}
-.cam-btn.stop{background:var(--danger);color:#fff;}
-.cam-btn:disabled{opacity:.5;cursor:not-allowed;}
+.scan-label{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:11px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;}
 
-/* ── FORM ── */
+/* SCAN BUTTONS */
+.scan-btn-row{display:flex;gap:10px;max-width:420px;margin:0 auto 12px;}
+.scan-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px 8px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-family:'Courier New',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
+.scan-btn:active{transform:scale(.96);}
+.scan-btn.active-barcode{border-color:var(--accent);background:rgba(0,212,255,.08);color:var(--accent);}
+.scan-btn.active-seri{border-color:var(--accent2);background:rgba(0,255,157,.08);color:var(--accent2);}
+.scan-btn-icon{font-size:22px;}
+
+/* FORM */
 .form-card{max-width:420px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
-.form-label{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;display:block;}
+.field-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.form-label{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;flex:1;}
+.req-star{color:var(--danger);font-size:12px;display:none;}
+.req-star.show{display:inline;}
 .form-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Courier New',monospace;font-size:15px;padding:10px 12px;margin-bottom:12px;outline:none;transition:border-color .2s;}
 .form-input:focus{border-color:var(--accent);}
 .form-input.hl{border-color:var(--accent2);background:rgba(0,255,157,.05);}
+.form-input.error{border-color:var(--danger);background:rgba(255,71,87,.05);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.add-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#000;border:none;border-radius:8px;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;letter-spacing:2px;cursor:pointer;margin-top:4px;}
-.flash{max-width:420px;margin:0 auto 12px;padding:10px 14px;border-radius:8px;font-size:12px;letter-spacing:1px;display:none;text-align:center;}
+.add-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#000;border:none;border-radius:8px;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;letter-spacing:2px;cursor:pointer;margin-top:4px;}
+
+.flash{max-width:420px;margin:0 auto 12px;padding:10px 14px;border-radius:8px;font-size:12px;display:none;text-align:center;}
 .flash.show{display:block;}
 .flash.ok{background:rgba(0,255,157,.1);border:1px solid var(--success);color:var(--success);}
 .flash.err{background:rgba(255,71,87,.1);border:1px solid var(--danger);color:var(--danger);}
 
-/* ── LIST ── */
+/* STOK */
+.stok-card{max-width:420px;margin:0 auto 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.stok-title{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;}
+.stok-result{max-width:420px;margin:0 auto 10px;background:rgba(0,255,157,.05);border:1px solid var(--accent2);border-radius:10px;padding:14px;display:none;}
+.stok-result.show{display:block;}
+.stok-product-name{font-size:16px;font-weight:bold;color:var(--accent2);margin-bottom:8px;}
+.stok-detail{font-size:12px;color:var(--muted);margin-top:4px;}
+.stok-not-found{max-width:420px;margin:0 auto 10px;background:rgba(255,71,87,.05);border:1px solid var(--danger);border-radius:10px;padding:14px;display:none;text-align:center;color:var(--danger);font-size:12px;}
+.stok-not-found.show{display:block;}
+
+/* LIST */
 .list-toolbar{display:flex;gap:8px;margin-bottom:12px;}
 .list-toolbar input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Courier New',monospace;font-size:13px;padding:9px 12px;outline:none;}
 .export-btn{padding:9px 14px;background:var(--accent2);color:#000;border:none;border-radius:6px;font-family:'Courier New',monospace;font-size:11px;font-weight:bold;cursor:pointer;white-space:nowrap;}
@@ -142,27 +201,36 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .item-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
 .item-num{font-size:10px;color:var(--muted);min-width:24px;text-align:center;}
 .item-body{flex:1;min-width:0;}
-.item-name{font-size:13px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
+.item-name{font-size:13px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}
 .item-barcode{font-size:11px;color:var(--accent);}
-.item-meta{font-size:10px;color:var(--muted);margin-top:2px;}
+.item-seri{font-size:11px;color:var(--accent2);}
+.item-date{font-size:10px;color:var(--muted);margin-top:3px;}
 .item-qty{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:14px;font-weight:bold;color:var(--accent2);text-align:center;min-width:36px;}
 .del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px;}
 
-/* ── SETTINGS ── */
+/* SETTINGS */
 .settings-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
 .settings-title{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
 .settings-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
 .settings-row:last-child{border-bottom:none;}
 .settings-key{font-size:12px;}
 .settings-val{background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Courier New',monospace;font-size:12px;padding:5px 8px;width:150px;outline:none;}
-.clear-btn{width:100%;padding:12px;background:rgba(255,71,87,.1);border:1px solid var(--danger);border-radius:8px;color:var(--danger);font-family:'Courier New',monospace;font-size:12px;cursor:pointer;margin-bottom:10px;}
-
-/* Update button in settings */
-.update-btn-big{width:100%;padding:14px;background:linear-gradient(135deg,#ff9500,var(--warn));color:#000;border:none;border-radius:8px;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;letter-spacing:2px;cursor:pointer;margin-bottom:10px;display:none;}
+/* Zorunlu alan satırı */
+.req-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.req-row:last-child{border-bottom:none;}
+.req-label{font-size:12px;color:var(--text);}
+.req-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.toggle-wrap{position:relative;width:44px;height:24px;flex-shrink:0;}
+.toggle-wrap input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:12px;cursor:pointer;transition:.3s;}
+.toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
+.toggle-wrap input:checked+.toggle-slider{background:linear-gradient(135deg,var(--accent2),var(--accent));}
+.toggle-wrap input:checked+.toggle-slider:before{transform:translateX(20px);}
+.danger-btn{width:100%;padding:13px;background:rgba(255,71,87,.1);border:1px solid var(--danger);border-radius:8px;color:var(--danger);font-family:'Courier New',monospace;font-size:12px;font-weight:bold;cursor:pointer;margin-bottom:10px;letter-spacing:1px;}
+.update-btn-big{width:100%;padding:13px;background:linear-gradient(135deg,#ff9500,var(--warn));color:#000;border:none;border-radius:8px;font-family:'Courier New',monospace;font-size:12px;font-weight:bold;letter-spacing:2px;cursor:pointer;margin-bottom:10px;display:none;}
 .update-btn-big.show{display:block;}
-.version-badge{font-size:10px;color:var(--muted);text-align:center;margin-bottom:16px;}
 
-/* ── STATUS ── */
+/* STATUS */
 .status-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 16px;display:flex;justify-content:space-between;font-size:10px;color:var(--muted);z-index:100;}
 .status-ok{color:var(--success);}
 .installed-badge{display:none;background:rgba(0,255,157,.1);border:1px solid var(--success);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--success);text-align:center;margin-bottom:12px;}
@@ -175,31 +243,23 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 <!-- UPDATE BANNER -->
 
 <div id="updateBanner">
-  <div class="ub-row">
-    <div class="ub-icon">🔄</div>
-    <div class="ub-text">
-      <div class="ub-title">YENİ GÜNCELLEME VAR!</div>
-      <div class="ub-sub">Verileriniz korunur — sadece uygulama yenilenir</div>
-    </div>
+  <div class="ub-row"><div class="ub-icon">🔄</div>
+    <div class="ub-text"><div class="ub-title">YENİ GÜNCELLEME VAR!</div><div class="ub-sub">Verileriniz korunur</div></div>
   </div>
   <div class="ub-actions">
-    <button class="ub-btn update" onclick="applyUpdate()">⬆️ &nbsp;GÜNCELLE</button>
-    <button class="ub-btn later" onclick="dismissUpdate()">Sonra</button>
+    <button class="ub-btn update" onclick="applyUpdate()">⬆️ GÜNCELLE</button>
+    <button class="ub-btn later" onclick="document.getElementById('updateBanner').classList.remove('show')">Sonra</button>
   </div>
 </div>
 
 <!-- INSTALL BANNER -->
 
 <div id="installBanner">
-  <div class="ib-row">
-    <div class="ib-icon">📦</div>
-    <div class="ib-text">
-      <div class="ib-title">UYGULAMAYI YÜKLE</div>
-      <div class="ib-sub">Ana ekrana ekle — internet olmadan çalışır</div>
-    </div>
+  <div class="ib-row"><div class="ib-icon">✦</div>
+    <div class="ib-text"><div class="ib-title">SAYIM✦ UYGULAMASI</div><div class="ib-sub">Ana ekrana ekle — internet olmadan çalışır</div></div>
   </div>
   <div class="ib-actions">
-    <button class="ib-btn install" id="installBtn" onclick="doInstall()">📲 &nbsp;YÜKLE</button>
+    <button class="ib-btn install" onclick="doInstall()">📲 YÜKLE</button>
     <button class="ib-btn dismiss" onclick="dismissInstall()">Şimdi Değil</button>
   </div>
 </div>
@@ -209,41 +269,151 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 <div id="iosGuide">
   <div class="ios-sheet">
     <button class="ios-close" onclick="document.getElementById('iosGuide').classList.remove('show')">✕</button>
-    <div class="ios-title">📲 &nbsp;ANA EKRANA EKLE</div>
+    <div class="ios-title">📲 ANA EKRANA EKLE</div>
     <ul class="ios-steps">
       <li><div class="ios-num">1</div><div>Alttaki <strong>⬆️ Paylaş</strong> butonuna dokun</div></li>
       <li><div class="ios-num">2</div><div><strong>"Ana Ekrana Ekle" ➕</strong> seçeneğine dokun</div></li>
       <li><div class="ios-num">3</div><div>Sağ üstte <strong>"Ekle"</strong> butonuna bas</div></li>
-      <li><div class="ios-num">4</div><div>Artık tam ekran uygulama olarak çalışır 🎉</div></li>
+      <li><div class="ios-num">4</div><div>Sayım✦ ana ekranda hazır 🎉</div></li>
     </ul>
   </div>
 </div>
 
+<!-- CONFIRM MODAL -->
+
+<div id="confirmModal">
+  <div class="confirm-box">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title">LİSTEYİ SİL</div>
+    <div class="confirm-msg">Tüm kayıtlar <strong>kalıcı olarak silinecek</strong>.<br>Bu işlem geri alınamaz.<br><br>Emin misiniz?</div>
+    <div class="confirm-actions">
+      <button class="confirm-yes" onclick="confirmClear()">✓ EVET, SİL</button>
+      <button class="confirm-no" onclick="document.getElementById('confirmModal').classList.remove('show')">✕ İPTAL</button>
+    </div>
+  </div>
+</div>
+
 <div class="header">
-  <div class="header-left"><div class="logo-dot"></div><span class="header-title">Stok Sayım</span></div>
+  <div class="header-left"><div class="logo-dot"></div><span class="app-name">Sayım✦</span></div>
   <div class="header-right">
-    <div class="update-dot" id="updateDot" title="Güncelleme var"></div>
-    <span class="item-count" id="headerCount">0 ÜRÜN</span>
+    <div class="update-dot" id="updateDot"></div>
+    <span class="item-count" id="headerCount">0 KAYIT</span>
   </div>
 </div>
 
 <div class="tabs">
   <button class="tab active" onclick="switchTab('scan',this)">📷 TARA</button>
+  <button class="tab" onclick="switchTab('stok',this)">🔍 STOK</button>
   <button class="tab" onclick="switchTab('list',this)">📋 LİSTE</button>
   <button class="tab" onclick="switchTab('settings',this)">⚙️ AYAR</button>
 </div>
 
-<!-- SCAN -->
+<!-- TARA -->
 
 <div class="screen active" id="screen-scan">
-  <div class="installed-badge" id="installedBadge">✓ Uygulama olarak çalışıyor</div>
-  <div class="camera-wrap">
-    <div class="cam-placeholder" id="placeholder">
-      <div style="font-size:36px">📷</div>
-      <div style="text-align:center">Kamera başlatmak için<br>aşağıdaki butona bas</div>
-    </div>
+  <div class="installed-badge" id="installedBadge">✦ Sayım✦ uygulama olarak çalışıyor</div>
+
+  <!-- 2 kamera butonu -->
+
+  <div class="scan-btn-row">
+    <button class="scan-btn" id="btnBarcode" onclick="startScan('barcode')">
+      <span class="scan-btn-icon">▮▯▮▮▯▮</span>
+      <span>Barkod Okut</span>
+    </button>
+    <button class="scan-btn" id="btnSeri" onclick="startScan('seri')">
+      <span class="scan-btn-icon">🔢</span>
+      <span>Seri No Okut</span>
+    </button>
+  </div>
+
+  <!-- Kamera -->
+
+  <div class="camera-wrap" id="cameraWrap">
     <div id="interactive"></div>
     <div class="scan-overlay" id="scanOverlay">
+      <div class="scan-frame">
+        <div class="scan-line"></div>
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="scan-label" id="scanLabel">BARKOD</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flash" id="flash"></div>
+
+  <div class="form-card">
+    <!-- Barkod -->
+    <div class="field-row">
+      <label class="form-label">Barkod</label>
+      <span class="req-star" id="star-barcode">●</span>
+    </div>
+    <input type="text" class="form-input" id="barcodeInput" placeholder="Okut veya manuel gir" inputmode="numeric" oninput="onBarcodeType()">
+
+```
+<!-- Seri No -->
+<div class="field-row">
+  <label class="form-label">Seri Numarası</label>
+  <span class="req-star" id="star-seri">●</span>
+</div>
+<input type="text" class="form-input" id="seriInput" placeholder="Okut veya manuel gir">
+
+<!-- Ürün Adı -->
+<div class="field-row">
+  <label class="form-label">Ürün Adı</label>
+  <span class="req-star" id="star-name">●</span>
+</div>
+<input type="text" class="form-input" id="nameInput" placeholder="Ürün adını gir...">
+
+<!-- Miktar + Birim -->
+<div class="form-row">
+  <div>
+    <div class="field-row">
+      <label class="form-label">Miktar</label>
+      <span class="req-star" id="star-qty">●</span>
+    </div>
+    <input type="number" class="form-input" id="qtyInput" value="1" min="1">
+  </div>
+  <div>
+    <div class="field-row">
+      <label class="form-label">Birim</label>
+      <span class="req-star" id="star-unit">●</span>
+    </div>
+    <input type="text" class="form-input" id="unitInput" value="Adet">
+  </div>
+</div>
+
+<!-- Not -->
+<div class="field-row">
+  <label class="form-label">Not</label>
+  <span class="req-star" id="star-note">●</span>
+</div>
+<input type="text" class="form-input" id="noteInput" placeholder="Renk, model, açıklama...">
+
+<button class="add-btn" onclick="addItem()">➕ &nbsp;LİSTEYE EKLE</button>
+```
+
+  </div>
+</div>
+
+<!-- STOK -->
+
+<div class="screen" id="screen-stok">
+  <div class="stok-card">
+    <div class="stok-title">Barkod ile Ürün Sorgula</div>
+    <label class="form-label" style="margin-bottom:6px;display:block;">Barkod</label>
+    <input type="text" class="form-input" id="stokBarcode" placeholder="Barkodu tara veya gir..." inputmode="numeric" oninput="searchStok()">
+    <div class="scan-btn-row" style="margin-bottom:0">
+      <button class="scan-btn" onclick="startStokScan()">
+        <span class="scan-btn-icon">▮▯▮▮▯▮</span>
+        <span>Kamera ile Tara</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="camera-wrap" id="stokCameraWrap">
+    <div id="stokInteractive"></div>
+    <div class="scan-overlay show" id="stokScanOverlay" style="display:none">
       <div class="scan-frame">
         <div class="scan-line"></div>
         <div class="corner tl"></div><div class="corner tr"></div>
@@ -251,40 +421,28 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
       </div>
     </div>
   </div>
-  <button class="cam-btn" id="camBtn" onclick="toggleCamera()">📷 &nbsp;KAMERA BAŞLAT</button>
-  <div class="flash" id="flash"></div>
-  <div class="form-card">
-    <label class="form-label">Barkod</label>
-    <input type="text" class="form-input" id="barcodeInput" placeholder="Otomatik veya manuel gir" inputmode="numeric">
-    <label class="form-label">Ürün Adı</label>
-    <input type="text" class="form-input" id="nameInput" placeholder="Ürün adını gir...">
-    <div class="form-row">
-      <div>
-        <label class="form-label">Miktar</label>
-        <input type="number" class="form-input" id="qtyInput" value="1" min="1">
-      </div>
-      <div>
-        <label class="form-label">Birim</label>
-        <input type="text" class="form-input" id="unitInput" value="Adet">
-      </div>
-    </div>
-    <label class="form-label">Not</label>
-    <input type="text" class="form-input" id="noteInput" placeholder="Seri no, renk, model...">
-    <button class="add-btn" onclick="addItem()">➕ &nbsp;LİSTEYE EKLE</button>
+
+  <div class="stok-result" id="stokResult">
+    <div class="stok-product-name" id="stokName"></div>
+    <div class="stok-detail" id="stokSeriEl"></div>
+    <div class="stok-detail" id="stokQty"></div>
+    <div class="stok-detail" id="stokNoteEl"></div>
+    <div class="stok-detail" id="stokDate"></div>
   </div>
+  <div class="stok-not-found" id="stokNotFound">❌ Bu barkod listede bulunamadı</div>
 </div>
 
-<!-- LIST -->
+<!-- LİSTE -->
 
 <div class="screen" id="screen-list">
   <div class="list-toolbar">
-    <input type="text" id="searchInput" placeholder="Barkod veya ürün ara..." oninput="renderList()">
+    <input type="text" id="searchInput" placeholder="Barkod, seri no veya ürün ara..." oninput="renderList()">
     <button class="export-btn" onclick="exportExcel()">📥 EXCEL</button>
   </div>
-  <div id="listContainer"><div class="list-empty">Henüz ürün eklenmedi</div></div>
+  <div id="listContainer"><div class="list-empty">Henüz kayıt eklenmedi</div></div>
 </div>
 
-<!-- SETTINGS -->
+<!-- AYAR -->
 
 <div class="screen" id="screen-settings">
   <div class="settings-card">
@@ -293,25 +451,50 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
     <div class="settings-row"><span class="settings-key">Sayım Tarihi</span><input type="date" class="settings-val" id="countDate"></div>
     <div class="settings-row"><span class="settings-key">Sayan Kişi</span><input type="text" class="settings-val" id="countPerson" placeholder="Ad Soyad"></div>
   </div>
+
+  <!-- ZORUNLU ALANLAR -->
+
+  <div class="settings-card">
+    <div class="settings-title">Zorunlu Alanlar</div>
+    <div class="req-row">
+      <div><div class="req-label">Barkod</div><div class="req-sub">Ürün barkod numarası</div></div>
+      <label class="toggle-wrap"><input type="checkbox" id="req-barcode" onchange="saveReq()"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="req-row">
+      <div><div class="req-label">Seri Numarası</div><div class="req-sub">Ürün seri no</div></div>
+      <label class="toggle-wrap"><input type="checkbox" id="req-seri" onchange="saveReq()"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="req-row">
+      <div><div class="req-label">Ürün Adı</div><div class="req-sub">Ürün ismi</div></div>
+      <label class="toggle-wrap"><input type="checkbox" id="req-name" onchange="saveReq()"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="req-row">
+      <div><div class="req-label">Miktar</div><div class="req-sub">Adet / sayı</div></div>
+      <label class="toggle-wrap"><input type="checkbox" id="req-qty" onchange="saveReq()"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="req-row">
+      <div><div class="req-label">Birim</div><div class="req-sub">Adet, kg, kutu...</div></div>
+      <label class="toggle-wrap"><input type="checkbox" id="req-unit" onchange="saveReq()"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="req-row">
+      <div><div class="req-label">Not</div><div class="req-sub">Ek açıklama</div></div>
+      <label class="toggle-wrap"><input type="checkbox" id="req-note" onchange="saveReq()"><span class="toggle-slider"></span></label>
+    </div>
+  </div>
+
   <div class="settings-card">
     <div class="settings-title">Güncelleme</div>
-    <div class="settings-row"><span class="settings-key">Mevcut Sürüm</span><span id="versionDisplay" style="color:var(--accent);font-size:12px"></span></div>
-    <div class="settings-row"><span class="settings-key">Durum</span><span id="updateStatus" style="font-size:12px;color:var(--muted)">Kontrol ediliyor...</span></div>
+    <div class="settings-row"><span class="settings-key">Sürüm</span><span style="color:var(--accent);font-size:12px">v4.0.0</span></div>
+    <div class="settings-row"><span class="settings-key">Durum</span><span id="updateStatus" style="font-size:12px;color:var(--success)">✓ Güncel</span></div>
   </div>
   <button class="update-btn-big" id="updateBtnBig" onclick="applyUpdate()">🔄 &nbsp;GÜNCELLEME YÜKLE</button>
+
   <div class="settings-card">
     <div class="settings-title">Özet</div>
-    <div class="settings-row"><span class="settings-key">Toplam Ürün</span><span id="statsTotal" style="color:var(--accent2)">0</span></div>
+    <div class="settings-row"><span class="settings-key">Toplam Kayıt</span><span id="statsTotal" style="color:var(--accent2)">0</span></div>
     <div class="settings-row"><span class="settings-key">Toplam Miktar</span><span id="statsQty" style="color:var(--accent)">0</span></div>
   </div>
-  <div class="settings-card">
-    <div class="settings-title">Kurulum</div>
-    <div class="settings-row"><span class="settings-key">Platform</span><span id="platformInfo" style="color:var(--accent);font-size:12px">—</span></div>
-    <div class="settings-row"><span class="settings-key">Durum</span><span id="pwaStatus" style="font-size:12px;color:var(--muted)">—</span></div>
-    <button class="add-btn" id="settingsInstallBtn" onclick="doInstall()" style="display:none;margin-top:10px">📲 &nbsp;UYGULAMAYI YÜKLE</button>
-    <button class="add-btn" id="settingsIosBtn" onclick="showIosGuide()" style="display:none;margin-top:10px;background:linear-gradient(135deg,#007aff,#00d4ff)">📲 &nbsp;ANA EKRANA EKLE (iOS)</button>
-  </div>
-  <button class="clear-btn" onclick="clearAll()">🗑 &nbsp;TÜM VERİYİ TEMİZLE</button>
+  <button class="danger-btn" onclick="askClearList()">🗑 &nbsp;LİSTEYİ TEMİZLE</button>
 </div>
 
 <div class="status-bar">
@@ -320,228 +503,168 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 </div>
 
 <script>
-// ══════════════════════════════════════════
-//  SERVICE WORKER — güncelleme mekanizması
-// ══════════════════════════════════════════
-const CACHE_NAME = 'stok-v' + APP_VERSION;
-
-const SW_CODE = `
-const CACHE = '${CACHE_NAME}';
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(['./'])).catch(()=>{})
-  );
-  self.skipWaiting(); // yeni SW hemen aktif ol
-});
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
-});
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    fetch(e.request).then(r => {
-      const clone = r.clone();
-      caches.open(CACHE).then(c => c.put(e.request, clone));
-      return r;
-    }).catch(() => caches.match(e.request))
-  );
-});
-// Mesaj al — güncelleme tetikle
-self.addEventListener('message', e => {
-  if (e.data === 'skipWaiting') self.skipWaiting();
-});
+// ── SERVICE WORKER ──
+const CACHE_NAME='sayim-v'+APP_VERSION;
+const SW_CODE=`
+const CACHE='${CACHE_NAME}';
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./']).catch(()=>{})));self.skipWaiting();});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))));self.clients.claim();});
+self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).then(r=>{const cl=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cl));return r;}).catch(()=>caches.match(e.request)));});
+self.addEventListener('message',e=>{if(e.data==='skipWaiting')self.skipWaiting();});
 `;
-
-let swRegistration = null;
-let newWorker = null;
-let updateAvailable = false;
-
-if ('serviceWorker' in navigator) {
-  const swBlob = new Blob([SW_CODE], {type:'application/javascript'});
-  navigator.serviceWorker.register(URL.createObjectURL(swBlob), {scope:'./'})
-    .then(reg => {
-      swRegistration = reg;
-
-      // Güncellemeleri dinle
-      reg.addEventListener('updatefound', () => {
-        newWorker = reg.installing;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // Yeni versiyon hazır, eski versiyon hâlâ aktif
-            showUpdateBanner();
-          }
-        });
+let swReg=null,updateAvailable=false;
+if('serviceWorker' in navigator){
+  const swBlob=new Blob([SW_CODE],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(swBlob),{scope:'./'}).then(reg=>{
+    swReg=reg;
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      nw.addEventListener('statechange',()=>{
+        if(nw.state==='installed'&&navigator.serviceWorker.controller){
+          updateAvailable=true;
+          document.getElementById('updateBanner').classList.add('show');
+          document.getElementById('updateDot').classList.add('show');
+          document.getElementById('updateBtnBig').classList.add('show');
+          document.getElementById('updateStatus').textContent='🟡 Güncelleme hazır';
+          document.getElementById('updateStatus').style.color='var(--warn)';
+        }
       });
+    });
+    if(reg.waiting){updateAvailable=true;document.getElementById('updateBanner').classList.add('show');}
+  }).catch(()=>{});
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(updateAvailable)location.reload();});
+}
+function applyUpdate(){
+  if(swReg&&swReg.waiting)swReg.waiting.postMessage('skipWaiting');
+  else caches.keys().then(k=>Promise.all(k.map(x=>caches.delete(x)))).then(()=>location.reload(true));
+}
 
-      // Sayfa yüklenirken zaten bekleyen bir SW var mı?
-      if (reg.waiting) showUpdateBanner();
-    }).catch(()=>{});
+// ── INSTALL ──
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(!localStorage.getItem('installDismissed'))document.getElementById('installBanner').classList.add('show');});
+window.addEventListener('appinstalled',()=>{document.getElementById('installBanner').classList.remove('show');document.getElementById('installedBadge').classList.add('show');});
+function dismissInstall(){document.getElementById('installBanner').classList.remove('show');localStorage.setItem('installDismissed','1');}
+async function doInstall(){
+  if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBanner').classList.remove('show');}
+  else if(isIOS)document.getElementById('iosGuide').classList.add('show');
+}
+if(isIOS&&!isStandalone&&!localStorage.getItem('iosDismissed')){
+  setTimeout(()=>{
+    const b=document.getElementById('installBanner');
+    b.querySelector('.ib-title').textContent='SAYIM✦ ANA EKRANA EKLE';
+    b.querySelector('.ib-sub').textContent='Safari → ⬆️ Paylaş → "Ana Ekrana Ekle"';
+    b.querySelector('.ib-btn.install').textContent='📲 NASIL?';
+    b.querySelector('.ib-btn.install').onclick=()=>document.getElementById('iosGuide').classList.add('show');
+    b.classList.add('show');
+  },1500);
+}
+if(isStandalone)document.getElementById('installedBadge').classList.add('show');
 
-  // SW güncellenince sayfayı yenile (veriler korunur)
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (updateAvailable) window.location.reload();
+// ── ZORUNLU ALAN YÖNETİMİ ──
+const REQ_FIELDS=['barcode','seri','name','qty','unit','note'];
+let reqSettings={};
+
+function loadReq(){
+  const saved=localStorage.getItem('reqSettings');
+  reqSettings=saved?JSON.parse(saved):{barcode:true,seri:false,name:true,qty:false,unit:false,note:false};
+  REQ_FIELDS.forEach(f=>{
+    const el=document.getElementById('req-'+f);
+    if(el) el.checked=!!reqSettings[f];
+    const star=document.getElementById('star-'+f);
+    if(star) star.classList.toggle('show',!!reqSettings[f]);
   });
 }
-
-function showUpdateBanner() {
-  updateAvailable = true;
-  document.getElementById('updateBanner').classList.add('show');
-  document.getElementById('updateDot').classList.add('show');
-  document.getElementById('updateBtnBig').classList.add('show');
-  document.getElementById('updateStatus').textContent = '🟡 Güncelleme hazır';
-  document.getElementById('updateStatus').style.color = 'var(--warn)';
+function saveReq(){
+  REQ_FIELDS.forEach(f=>{
+    const el=document.getElementById('req-'+f);
+    if(el) reqSettings[f]=el.checked;
+    const star=document.getElementById('star-'+f);
+    if(star) star.classList.toggle('show',!!reqSettings[f]);
+  });
+  localStorage.setItem('reqSettings',JSON.stringify(reqSettings));
 }
 
-function applyUpdate() {
-  // Veriyi koru
-  const savedItems = localStorage.getItem('stockItems');
-  // SW'ye güncelle komutu gönder
-  if (swRegistration && swRegistration.waiting) {
-    swRegistration.waiting.postMessage('skipWaiting');
-  } else {
-    // Cache temizle ve yenile
-    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
-      window.location.reload(true);
-    });
-  }
-}
+// ── DATA ──
+let items=JSON.parse(localStorage.getItem('stockItems')||'[]');
+function save(){localStorage.setItem('stockItems',JSON.stringify(items));}
+function updateCount(){document.getElementById('headerCount').textContent=items.length+' KAYIT';}
+function tsNow(){return new Date().toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+function showFlash(msg,type){const el=document.getElementById('flash');el.textContent=msg;el.className='flash show '+type;clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),3500);}
+function setStatus(msg,ok){document.getElementById('statusLeft').textContent=msg;const r=document.getElementById('statusRight');r.textContent=ok?'● AKTİF':'○ BEKLİYOR';r.className=ok?'status-ok':'';}
 
-function dismissUpdate() {
-  document.getElementById('updateBanner').classList.remove('show');
-}
-
-// ══════════════════════════════════════════
-//  INSTALL (PWA)
-// ══════════════════════════════════════════
-const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const isAndroid = /android/i.test(navigator.userAgent);
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-let deferredPrompt = null;
-
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault(); deferredPrompt = e;
-  if (!localStorage.getItem('installDismissed')) showInstallBanner();
-});
-window.addEventListener('appinstalled', () => {
-  hideInstallBanner();
-  document.getElementById('installedBadge').classList.add('show');
-  updatePwaStatus();
-});
-
-function showInstallBanner() {
-  document.getElementById('installBanner').style.top = updateAvailable ? '80px' : '0';
-  document.getElementById('installBanner').classList.add('show');
-}
-function hideInstallBanner() { document.getElementById('installBanner').classList.remove('show'); }
-function dismissInstall() { hideInstallBanner(); localStorage.setItem('installDismissed','1'); }
-function showIosGuide() { document.getElementById('iosGuide').classList.add('show'); }
-
-async function doInstall() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const {outcome} = await deferredPrompt.userChoice;
-    deferredPrompt = null; hideInstallBanner();
-  } else if (isIOS) { showIosGuide(); }
-}
-
-if (isIOS && !isStandalone && !localStorage.getItem('iosDismissed')) {
-  setTimeout(() => {
-    const b = document.getElementById('installBanner');
-    b.querySelector('.ib-title').textContent = 'ANA EKRANA EKLE';
-    b.querySelector('.ib-sub').textContent = 'Safari → ⬆️ Paylaş → "Ana Ekrana Ekle"';
-    b.querySelector('.ib-btn.install').textContent = '📲 NASIL YAPILIR?';
-    b.querySelector('.ib-btn.install').onclick = showIosGuide;
-    b.classList.add('show');
-  }, 1500);
-}
-
-function updatePwaStatus() {
-  const platEl = document.getElementById('platformInfo');
-  const statEl = document.getElementById('pwaStatus');
-  const andBtn = document.getElementById('settingsInstallBtn');
-  const iosBtn = document.getElementById('settingsIosBtn');
-  document.getElementById('versionDisplay').textContent = 'v' + APP_VERSION;
-
-  if (isIOS) platEl.textContent = '🍎 iPhone / iPad';
-  else if (isAndroid) platEl.textContent = '🤖 Android';
-  else platEl.textContent = '💻 Web';
-
-  if (isStandalone) {
-    statEl.textContent = '✓ Yüklü'; statEl.style.color='var(--success)';
-    document.getElementById('installedBadge').classList.add('show');
-  } else if (isIOS) {
-    statEl.textContent = 'Ana ekrana eklenebilir'; iosBtn.style.display='block';
-  } else if (deferredPrompt) {
-    statEl.textContent = 'Yüklemeye hazır'; statEl.style.color='var(--accent2)';
-    andBtn.style.display='block';
-  } else {
-    statEl.textContent = 'Web üzerinden çalışıyor';
-  }
-
-  if (!updateAvailable) {
-    document.getElementById('updateStatus').textContent = '✓ Güncel';
-    document.getElementById('updateStatus').style.color = 'var(--success)';
-  }
-}
-
-// ══════════════════════════════════════════
-//  APP LOGIC
-// ══════════════════════════════════════════
-let items = JSON.parse(localStorage.getItem('stockItems') || '[]');
-let cameraActive=false, lastCode='', lastTime=0;
-
-function switchTab(tab, el) {
+// ── TABS ──
+function switchTab(tab,el){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('screen-'+tab).classList.add('active');
   el.classList.add('active');
-  if (tab==='list') renderList();
-  if (tab==='settings') {
-    document.getElementById('statsTotal').textContent = items.length;
-    document.getElementById('statsQty').textContent = items.reduce((s,i)=>s+i.qty,0);
-    updatePwaStatus();
+  if(tab==='list')renderList();
+  if(tab==='settings'){
+    document.getElementById('statsTotal').textContent=items.length;
+    document.getElementById('statsQty').textContent=items.reduce((s,i)=>s+i.qty,0);
   }
+  if(tab!=='scan'&&cameraActive)stopCamera();
+  if(tab!=='stok'&&stokCamActive)stopStokCamera();
 }
 
-function toggleCamera(){ cameraActive ? stopCamera() : startCamera(); }
+// ── SCAN KAMERA ──
+let cameraActive=false,scanTarget='barcode',lastCode='',lastTime=0;
 
-function startCamera(){
-  const btn=document.getElementById('camBtn');
-  btn.textContent='⏳ Başlatılıyor...'; btn.disabled=true;
+function startScan(target){
+  scanTarget=target;
+  // İkinci kez aynı butona basılırsa kapat
+  if(cameraActive&&((target==='barcode'&&document.getElementById('btnBarcode').classList.contains('active-barcode'))||(target==='seri'&&document.getElementById('btnSeri').classList.contains('active-seri')))){
+    stopCamera();return;
+  }
+  if(cameraActive)stopCamera();
+  document.getElementById('btnBarcode').className='scan-btn'+(target==='barcode'?' active-barcode':'');
+  document.getElementById('btnSeri').className='scan-btn'+(target==='seri'?' active-seri':'');
+  document.getElementById('scanLabel').textContent=target==='barcode'?'BARKOD OKUT':'SERİ NO OKUT';
+  document.getElementById('scanLabel').style.color=target==='barcode'?'var(--accent)':'var(--accent2)';
+  document.getElementById('scanOverlay').querySelector('.scan-frame').style.borderColor=target==='barcode'?'var(--accent)':'var(--accent2)';
+
+  const wrap=document.getElementById('cameraWrap');
+  wrap.classList.add('show');
+  setStatus(target==='barcode'?'Barkod bekleniyor...':'Seri no bekleniyor...',true);
+
   Quagga.init({
-    inputStream:{ type:'LiveStream', target:document.getElementById('interactive'),
-      constraints:{facingMode:'environment', width:{ideal:1280}, height:{ideal:720}} },
-    locator:{patchSize:'large', halfSample:false},
-    numOfWorkers:0, frequency:15,
-    decoder:{readers:['ean_reader','ean_8_reader','code_128_reader','upc_reader'], multiple:false},
+    inputStream:{type:'LiveStream',target:document.getElementById('interactive'),
+      constraints:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}},
+    locator:{patchSize:'large',halfSample:false},
+    numOfWorkers:0,frequency:15,
+    decoder:{readers:['ean_reader','ean_8_reader','code_128_reader','code_39_reader','upc_reader'],multiple:false},
     locate:true
-  }, err=>{
-    btn.disabled=false;
-    if(err){ btn.innerHTML='📷 &nbsp;KAMERA BAŞLAT'; showFlash('❌ Kamera açılamadı','err'); return; }
-    Quagga.start(); cameraActive=true;
-    document.getElementById('placeholder').style.display='none';
+  },err=>{
+    if(err){wrap.classList.remove('show');showFlash('❌ Kamera açılamadı','err');return;}
+    Quagga.start();cameraActive=true;
     document.getElementById('interactive').style.display='block';
     document.getElementById('scanOverlay').classList.add('show');
-    btn.innerHTML='⏹ &nbsp;KAMERAYI DURDUR'; btn.classList.add('stop');
-    setStatus('Kamera aktif — barkod okutun', true);
   });
+
   Quagga.offDetected();
   Quagga.onDetected(result=>{
     const code=result.codeResult.code;
-    if(!code || code.length<6) return;
+    if(!code||code.length<4)return;
     const now2=Date.now();
-    if(code===lastCode && now2-lastTime<3000) return;
-    lastCode=code; lastTime=now2;
-    document.getElementById('barcodeInput').value=code;
-    document.getElementById('barcodeInput').classList.add('hl');
-    document.getElementById('nameInput').focus();
-    showFlash('✓ Okundu: '+code,'ok');
-    if(navigator.vibrate) navigator.vibrate(120);
-    setTimeout(()=>document.getElementById('barcodeInput').classList.remove('hl'),1500);
+    if(code===lastCode&&now2-lastTime<3000)return;
+    lastCode=code;lastTime=now2;
+
+    if(scanTarget==='barcode'){
+      document.getElementById('barcodeInput').value=code;
+      document.getElementById('barcodeInput').classList.add('hl');
+      setTimeout(()=>document.getElementById('barcodeInput').classList.remove('hl'),1500);
+      onBarcodeType();
+      showFlash('✓ Barkod: '+code,'ok');
+    } else {
+      document.getElementById('seriInput').value=code;
+      document.getElementById('seriInput').classList.add('hl');
+      setTimeout(()=>document.getElementById('seriInput').classList.remove('hl'),1500);
+      showFlash('✓ Seri No: '+code,'ok');
+    }
+    if(navigator.vibrate)navigator.vibrate(150);
+    stopCamera();
   });
 }
 
@@ -550,77 +673,169 @@ function stopCamera(){
   cameraActive=false;
   document.getElementById('interactive').style.display='none';
   document.getElementById('scanOverlay').classList.remove('show');
-  document.getElementById('placeholder').style.display='flex';
-  const btn=document.getElementById('camBtn');
-  btn.innerHTML='📷 &nbsp;KAMERA BAŞLAT'; btn.classList.remove('stop');
-  setStatus('Kamera durduruldu',false);
+  document.getElementById('cameraWrap').classList.remove('show');
+  document.getElementById('btnBarcode').className='scan-btn';
+  document.getElementById('btnSeri').className='scan-btn';
+  setStatus('Hazır',false);
 }
 
+function onBarcodeType(){
+  const code=document.getElementById('barcodeInput').value.trim();
+  if(!code)return;
+  const found=items.find(i=>i.barcode===code);
+  if(found){
+    document.getElementById('nameInput').value=found.name;
+    document.getElementById('unitInput').value=found.unit;
+  }
+}
+
+// ── STOK KAMERA ──
+let stokCamActive=false;
+function startStokScan(){
+  if(stokCamActive){stopStokCamera();return;}
+  const wrap=document.getElementById('stokCameraWrap');
+  wrap.classList.add('show');
+  Quagga.init({
+    inputStream:{type:'LiveStream',target:document.getElementById('stokInteractive'),
+      constraints:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}},
+    locator:{patchSize:'large',halfSample:false},
+    numOfWorkers:0,frequency:15,
+    decoder:{readers:['ean_reader','ean_8_reader','code_128_reader','upc_reader'],multiple:false},
+    locate:true
+  },err=>{
+    if(err){wrap.classList.remove('show');showFlash('❌ Kamera açılamadı','err');return;}
+    Quagga.start();stokCamActive=true;
+    document.getElementById('stokInteractive').style.display='block';
+    document.getElementById('stokScanOverlay').style.display='flex';
+  });
+  Quagga.offDetected();
+  Quagga.onDetected(result=>{
+    const code=result.codeResult.code;
+    if(!code||code.length<4)return;
+    document.getElementById('stokBarcode').value=code;
+    searchStok();
+    if(navigator.vibrate)navigator.vibrate(150);
+    stopStokCamera();
+  });
+}
+function stopStokCamera(){
+  try{Quagga.stop();}catch(e){}
+  stokCamActive=false;
+  document.getElementById('stokInteractive').style.display='none';
+  document.getElementById('stokScanOverlay').style.display='none';
+  document.getElementById('stokCameraWrap').classList.remove('show');
+}
+
+// ── STOK SORGULA ──
+function searchStok(){
+  const code=document.getElementById('stokBarcode').value.trim();
+  const res=document.getElementById('stokResult');
+  const nf=document.getElementById('stokNotFound');
+  res.classList.remove('show');nf.classList.remove('show');
+  if(!code)return;
+  const found=items.find(i=>i.barcode===code);
+  if(found){
+    document.getElementById('stokName').textContent='📦 '+found.name;
+    document.getElementById('stokSeriEl').textContent=found.seri?'🔢 Seri No: '+found.seri:'';
+    document.getElementById('stokQty').textContent='📊 Miktar: '+found.qty+' '+found.unit;
+    document.getElementById('stokNoteEl').textContent=found.note?'📝 '+found.note:'';
+    document.getElementById('stokDate').textContent='🕐 '+found.addedAt;
+    res.classList.add('show');
+  } else nf.classList.add('show');
+}
+
+// ── KAYIT EKLE ──
 function addItem(){
   const barcode=document.getElementById('barcodeInput').value.trim();
+  const seri=document.getElementById('seriInput').value.trim();
   const name=document.getElementById('nameInput').value.trim();
   const qty=parseInt(document.getElementById('qtyInput').value)||1;
   const unit=document.getElementById('unitInput').value.trim()||'Adet';
   const note=document.getElementById('noteInput').value.trim();
-  if(!barcode){showFlash('❌ Barkod boş!','err');return;}
-  if(!name){showFlash('❌ Ürün adı boş!','err');return;}
-  const ex=items.find(i=>i.barcode===barcode);
-  if(ex){ex.qty+=qty;ex.lastUpdated=tsNow();showFlash('↑ Miktar: '+ex.qty+' '+unit,'ok');}
-  else{items.push({id:Date.now(),barcode,name,qty,unit,note,addedAt:tsNow(),lastUpdated:tsNow()});showFlash('✓ Eklendi: '+name,'ok');}
-  save(); updateCount();
-  ['barcodeInput','nameInput','noteInput'].forEach(id=>document.getElementById(id).value='');
+
+  // Zorunlu alan kontrolü
+  const checks=[
+    {key:'barcode',val:barcode,label:'Barkod'},
+    {key:'seri',val:seri,label:'Seri Numarası'},
+    {key:'name',val:name,label:'Ürün Adı'},
+    {key:'qty',val:String(qty),label:'Miktar'},
+    {key:'unit',val:unit,label:'Birim'},
+    {key:'note',val:note,label:'Not'},
+  ];
+  const missing=checks.filter(c=>reqSettings[c.key]&&!c.val);
+  // hata highlight temizle
+  ['barcodeInput','seriInput','nameInput','qtyInput','unitInput','noteInput'].forEach(id=>document.getElementById(id).classList.remove('error'));
+  if(missing.length){
+    missing.forEach(c=>{
+      const map={barcode:'barcodeInput',seri:'seriInput',name:'nameInput',qty:'qtyInput',unit:'unitInput',note:'noteInput'};
+      document.getElementById(map[c.key]).classList.add('error');
+    });
+    showFlash('❌ Zorunlu: '+missing.map(c=>c.label).join(', '),'err');
+    return;
+  }
+
+  const ex=items.find(i=>i.barcode&&i.barcode===barcode&&barcode);
+  if(ex&&barcode){ex.qty+=qty;ex.lastUpdated=tsNow();showFlash('↑ Miktar güncellendi: '+ex.qty+' '+unit,'ok');}
+  else{items.push({id:Date.now(),barcode,seri,name,qty,unit,note,addedAt:tsNow(),lastUpdated:tsNow()});showFlash('✓ Kaydedildi: '+name,'ok');}
+  save();updateCount();
+  ['barcodeInput','seriInput','nameInput','noteInput'].forEach(id=>{document.getElementById(id).value='';document.getElementById(id).classList.remove('error');});
   document.getElementById('qtyInput').value='1';
   document.getElementById('barcodeInput').focus();
 }
 
+// ── LİSTE ──
 function renderList(){
   const q=(document.getElementById('searchInput')?.value||'').toLowerCase();
-  const f=items.filter(i=>i.barcode.toLowerCase().includes(q)||i.name.toLowerCase().includes(q));
+  const f=items.filter(i=>(i.barcode||'').toLowerCase().includes(q)||(i.name||'').toLowerCase().includes(q)||(i.seri||'').toLowerCase().includes(q));
   const c=document.getElementById('listContainer');
   if(!f.length){c.innerHTML='<div class="list-empty">Kayıt bulunamadı</div>';return;}
   c.innerHTML=f.map((item,idx)=>`
     <div class="item-card">
       <span class="item-num">${idx+1}</span>
       <div class="item-body">
-        <div class="item-name">${item.name}</div>
-        <div class="item-barcode">${item.barcode}</div>
-        <div class="item-meta">${item.note?'📝 '+item.note+' · ':''}${item.lastUpdated}</div>
+        <div class="item-name">${item.name||'—'}</div>
+        ${item.barcode?`<div class="item-barcode">▮ ${item.barcode}</div>`:''}
+        ${item.seri?`<div class="item-seri">🔢 ${item.seri}</div>`:''}
+        ${item.note?`<div class="item-date" style="color:var(--muted)">📝 ${item.note}</div>`:''}
+        <div class="item-date">🕐 ${item.addedAt}</div>
       </div>
       <div class="item-qty">${item.qty}<br><span style="font-size:9px;color:var(--muted)">${item.unit}</span></div>
       <button class="del-btn" onclick="deleteItem(${item.id})">✕</button>
     </div>`).join('');
 }
-
 function deleteItem(id){
-  if(!confirm('Silinsin mi?')) return;
-  items=items.filter(i=>i.id!==id); save(); renderList(); updateCount();
+  if(!confirm('Bu kayıt silinsin mi?'))return;
+  items=items.filter(i=>i.id!==id);save();renderList();updateCount();
 }
 
+// ── EXCEL ──
 function exportExcel(){
   if(!items.length){showFlash('❌ Liste boş!','err');return;}
   const branch=document.getElementById('branchName').value||'Şube';
   const date=document.getElementById('countDate').value||new Date().toISOString().slice(0,10);
   const person=document.getElementById('countPerson').value||'';
-  const hdr=['ŞUBE','TARİH','SAYAN KİŞİ','BARKOD','ÜRÜN ADI','MİKTAR','BİRİM','NOT','EKLEME'];
-  const rows=items.map(i=>[branch,date,person,i.barcode,i.name,i.qty,i.unit,i.note||'',i.addedAt]);
+  const hdr=['ŞUBE','TARİH','SAYAN KİŞİ','BARKOD','SERİ NO','ÜRÜN ADI','MİKTAR','BİRİM','NOT','KAYIT TARİHİ'];
+  const rows=items.map(i=>[branch,date,person,i.barcode||'',i.seri||'',i.name||'',i.qty,i.unit,i.note||'',i.addedAt]);
   const wb=XLSX.utils.book_new();
   const ws=XLSX.utils.aoa_to_sheet([hdr,...rows]);
-  ws['!cols']=[{wch:18},{wch:12},{wch:16},{wch:16},{wch:28},{wch:8},{wch:8},{wch:24},{wch:12}];
-  XLSX.utils.book_append_sheet(wb,ws,'Stok Sayım');
-  XLSX.writeFile(wb,`Stok_${branch.replace(/\s/g,'_')}_${date}.xlsx`);
+  ws['!cols']=[{wch:16},{wch:12},{wch:16},{wch:16},{wch:16},{wch:26},{wch:8},{wch:8},{wch:20},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws,'Sayım');
+  XLSX.writeFile(wb,`Sayim_${branch.replace(/\s/g,'_')}_${date}.xlsx`);
   showFlash('✓ Excel indirildi','ok');
 }
 
-function save(){localStorage.setItem('stockItems',JSON.stringify(items));}
-function updateCount(){document.getElementById('headerCount').textContent=items.length+' ÜRÜN';}
-function tsNow(){return new Date().toLocaleTimeString('tr-TR');}
-function showFlash(msg,type){const el=document.getElementById('flash');el.textContent=msg;el.className='flash show '+type;clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),3000);}
-function setStatus(msg,ok){document.getElementById('statusLeft').textContent=msg;const r=document.getElementById('statusRight');r.textContent=ok?'● AKTİF':'○ BEKLİYOR';r.className=ok?'status-ok':'';}
-function clearAll(){if(!confirm('Tüm veri silinsin mi?')) return;items=[];save();updateCount();renderList();showFlash('✓ Temizlendi','ok');}
+// ── LİSTEYİ TEMİZLE ──
+function askClearList(){document.getElementById('confirmModal').classList.add('show');}
+function confirmClear(){
+  items=[];save();updateCount();renderList();
+  document.getElementById('confirmModal').classList.remove('show');
+  showFlash('✓ Liste temizlendi','ok');
+}
 
+// ── INIT ──
 document.getElementById('countDate').value=new Date().toISOString().slice(0,10);
-updateCount(); updatePwaStatus();
-if(isStandalone) document.getElementById('installedBadge').classList.add('show');
+loadReq();
+updateCount();
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('screen-scan').classList.contains('active'))addItem();});
 </script>
 
