@@ -244,13 +244,19 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF Pro Di
   <div class="login-card">
     <div class="login-field">
       <label class="login-label">Kullanıcı Adı</label>
-      <input type="text" class="login-input" id="loginUser" placeholder="kullanıcı adı" autocomplete="username" autocapitalize="none">
+      <input type="text" class="login-input" id="loginUser" placeholder="kullanıcı adı" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
     </div>
     <div class="login-field">
       <label class="login-label">Şifre</label>
-      <input type="password" class="login-input" id="loginPass" placeholder="••••••" autocomplete="current-password">
+      <div style="position:relative">
+        <input type="password" class="login-input" id="loginPass" placeholder="••••••" autocomplete="current-password" style="padding-right:70px">
+        <button type="button" id="togglePass"
+          style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#5a7090;font-size:12px;font-weight:700;cursor:pointer;padding:4px 6px;letter-spacing:.5px;font-family:inherit">
+          GÖSTER
+        </button>
+      </div>
     </div>
-    <button class="login-btn" id="loginBtn" type="button">GİRİŞ YAP</button>
+    <button type="button" class="login-btn" id="loginBtn" style="margin-top:12px">GİRİŞ YAP</button>
     <div class="login-err" id="loginErr"></div>
   </div>
 </div>
@@ -1210,24 +1216,30 @@ function renderLoginLogs(){
   c.innerHTML=logs.slice(0,50).map(l=>`<div class="log-row"><span class="log-time">${l.time}</span><span style="font-weight:600">${l.user}</span><span style="color:var(--muted);font-size:10px">${l.action} · ${l.role}</span></div>`).join('');
 }
 
-// ════ ENTER KEY & LOGIN BUTTON ════
-document.addEventListener(‘DOMContentLoaded’, function() {
-var loginBtn = document.getElementById(‘loginBtn’);
-if(loginBtn) loginBtn.addEventListener(‘click’, doLogin);
-var loginPass = document.getElementById(‘loginPass’);
-if(loginPass) loginPass.addEventListener(‘keydown’, function(e){ if(e.key===‘Enter’) doLogin(); });
-var loginUser = document.getElementById(‘loginUser’);
-if(loginUser) loginUser.addEventListener(‘keydown’, function(e){ if(e.key===‘Enter’) doLogin(); });
-});
-// Fallback — script yüklendikten hemen sonra da dene
-(function(){
-function attachLogin(){
-var btn=document.getElementById(‘loginBtn’);
-if(btn && !btn._bound){ btn.addEventListener(‘click’,doLogin); btn._bound=true; }
-}
-setTimeout(attachLogin, 100);
-setTimeout(attachLogin, 500);
-})();
+// ════ LOGIN EVENTS — en sade hali ════
+window.onload = function() {
+var btn  = document.getElementById(‘loginBtn’);
+var user = document.getElementById(‘loginUser’);
+var pass = document.getElementById(‘loginPass’);
+var tog  = document.getElementById(‘togglePass’);
+
+if(btn)  btn.onclick  = doLogin;
+if(user) user.onkeydown = function(e){ if(e.keyCode===13) doLogin(); };
+if(pass) pass.onkeydown = function(e){ if(e.keyCode===13) doLogin(); };
+
+if(tog) tog.onmousedown = tog.ontouchstart = function(e){
+e.preventDefault();
+pass.type = ‘text’;
+tog.textContent = ‘GİZLE’;
+tog.style.color = ‘#00d4ff’;
+};
+if(tog) tog.onmouseup = tog.ontouchend = function(e){
+e.preventDefault();
+pass.type = ‘password’;
+tog.textContent = ‘GÖSTER’;
+tog.style.color = ‘#5a7090’;
+};
+};
 </script>
 
 </body>
