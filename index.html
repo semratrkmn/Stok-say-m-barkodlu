@@ -11,45 +11,23 @@
 <meta name="theme-color" content="#0d0f14">
 <title>Stok Sayım</title>
 
-<!-- PWA Manifest (inline via JS) -->
-
 <script>
+// ── APP VERSION — her güncellemede bu sayıyı artır ──
+const APP_VERSION = '1.0.0';
+
+// ── Manifest ──
 const manifest = {
-  name: "Stok Sayım",
-  short_name: "StokSayım",
+  name: "Stok Sayım", short_name: "StokSayım",
   description: "Şube stok sayım ve barkod okuma uygulaması",
-  start_url: "./",
-  display: "standalone",
-  background_color: "#0d0f14",
-  theme_color: "#0d0f14",
-  orientation: "portrait",
+  start_url: "./", display: "standalone",
+  background_color: "#0d0f14", theme_color: "#0d0f14", orientation: "portrait",
   icons: [
     { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%230d0f14' rx='32'/><text y='130' x='96' text-anchor='middle' font-size='110' font-family='serif'>📦</text></svg>", sizes: "192x192", type: "image/svg+xml" },
     { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%230d0f14' rx='80'/><text y='360' x='256' text-anchor='middle' font-size='300' font-family='serif'>📦</text></svg>", sizes: "512x512", type: "image/svg+xml" }
   ]
 };
-const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
-const manifestURL = URL.createObjectURL(blob);
-document.write('<link rel="manifest" href="'+manifestURL+'">');
-</script>
-
-<!-- Apple Touch Icon (inline SVG→canvas) -->
-
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-  const c = document.createElement('canvas'); c.width=180; c.height=180;
-  const ctx = c.getContext('2d');
-  ctx.fillStyle='#0d0f14'; ctx.beginPath();
-  const r=32, w=180, h=180;
-  ctx.moveTo(r,0); ctx.lineTo(w-r,0); ctx.quadraticCurveTo(w,0,w,r);
-  ctx.lineTo(w,h-r); ctx.quadraticCurveTo(w,h,w-r,h);
-  ctx.lineTo(r,h); ctx.quadraticCurveTo(0,h,0,h-r);
-  ctx.lineTo(0,r); ctx.quadraticCurveTo(0,0,r,0); ctx.closePath(); ctx.fill();
-  ctx.font='110px serif'; ctx.textAlign='center'; ctx.fillText('📦',90,130);
-  const link=document.createElement('link');
-  link.rel='apple-touch-icon'; link.href=c.toDataURL();
-  document.head.appendChild(link);
-});
+const mBlob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+document.write('<link rel="manifest" href="'+URL.createObjectURL(mBlob)+'">');
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -57,120 +35,158 @@ window.addEventListener('DOMContentLoaded', () => {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 
 <style>
-  :root {
-    --bg:#0d0f14; --surface:#161923; --card:#1e2330; --border:#2a3045;
-    --accent:#00d4ff; --accent2:#00ff9d; --text:#e8edf5; --muted:#6b7a99;
-    --success:#00ff9d; --danger:#ff4757;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;min-height:100vh;overscroll-behavior:none;}
+:root {
+  --bg:#0d0f14; --surface:#161923; --card:#1e2330; --border:#2a3045;
+  --accent:#00d4ff; --accent2:#00ff9d; --text:#e8edf5; --muted:#6b7a99;
+  --success:#00ff9d; --danger:#ff4757; --warn:#ffb300;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;min-height:100vh;overscroll-behavior:none;}
 
-  /* ── INSTALL BANNER ── */
-  #installBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:linear-gradient(135deg,#1e2330,#0d0f14);border-bottom:1px solid var(--accent);padding:14px 16px;animation:slideDown .4s ease;}
-  @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
-  #installBanner.show{display:block;}
-  .ib-row{display:flex;align-items:center;gap:12px;}
-  .ib-icon{font-size:32px;}
-  .ib-text{flex:1;}
-  .ib-title{font-size:13px;font-weight:bold;color:var(--accent);letter-spacing:1px;}
-  .ib-sub{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
-  .ib-actions{display:flex;gap:8px;margin-top:10px;}
-  .ib-btn{flex:1;padding:10px;border:none;border-radius:6px;font-family:'Courier New',monospace;font-size:11px;font-weight:bold;cursor:pointer;letter-spacing:1px;}
-  .ib-btn.install{background:var(--accent2);color:#000;}
-  .ib-btn.dismiss{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
+/* ── UPDATE BANNER ── */
+#updateBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:999;
+  background:linear-gradient(135deg,#1a1500,#0d0f14);
+  border-bottom:2px solid var(--warn);padding:14px 16px;animation:slideDown .4s ease;}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+#updateBanner.show{display:block;}
+.ub-row{display:flex;align-items:center;gap:12px;}
+.ub-icon{font-size:28px;}
+.ub-text{flex:1;}
+.ub-title{font-size:13px;font-weight:bold;color:var(--warn);letter-spacing:1px;}
+.ub-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.ub-actions{display:flex;gap:8px;margin-top:10px;}
+.ub-btn{flex:1;padding:10px;border:none;border-radius:6px;font-family:'Courier New',monospace;font-size:11px;font-weight:bold;cursor:pointer;letter-spacing:1px;}
+.ub-btn.update{background:var(--warn);color:#000;}
+.ub-btn.later{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
 
-  /* iOS install guide */
-  #iosGuide{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.85);align-items:flex-end;justify-content:center;}
-  #iosGuide.show{display:flex;}
-  .ios-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:24px 20px 40px;max-width:480px;width:100%;border-top:1px solid var(--border);}
-  .ios-close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;margin-top:-4px;}
-  .ios-title{font-size:15px;font-weight:bold;color:var(--accent);margin-bottom:16px;letter-spacing:2px;}
-  .ios-steps{list-style:none;display:flex;flex-direction:column;gap:14px;}
-  .ios-steps li{display:flex;align-items:flex-start;gap:12px;font-size:13px;line-height:1.5;}
-  .ios-num{background:var(--accent);color:#000;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;flex-shrink:0;margin-top:1px;}
-  .ios-icon{font-size:18px;}
+/* ── INSTALL BANNER ── */
+#installBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:998;
+  background:linear-gradient(135deg,#1e2330,#0d0f14);
+  border-bottom:1px solid var(--accent);padding:14px 16px;animation:slideDown .4s ease;}
+#installBanner.show{display:block;}
+.ib-row{display:flex;align-items:center;gap:12px;}
+.ib-icon{font-size:32px;}
+.ib-text{flex:1;}
+.ib-title{font-size:13px;font-weight:bold;color:var(--accent);letter-spacing:1px;}
+.ib-sub{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
+.ib-actions{display:flex;gap:8px;margin-top:10px;}
+.ib-btn{flex:1;padding:10px;border:none;border-radius:6px;font-family:'Courier New',monospace;font-size:11px;font-weight:bold;cursor:pointer;letter-spacing:1px;}
+.ib-btn.install{background:var(--accent2);color:#000;}
+.ib-btn.dismiss{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
 
-  /* ── LAYOUT ── */
-  .header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-  .header-left{display:flex;align-items:center;gap:10px;}
-  .logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);box-shadow:0 0 8px var(--accent2);animation:pulse 2s infinite;}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-  .header-title{font-size:13px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;}
-  .item-count{background:var(--accent);color:#000;font-size:11px;font-weight:bold;padding:3px 9px;border-radius:20px;}
-  .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
-  .tab{flex:1;padding:12px;text-align:center;font-size:11px;letter-spacing:2px;color:var(--muted);cursor:pointer;border:none;background:none;text-transform:uppercase;border-bottom:2px solid transparent;}
-  .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
-  .screen{display:none;padding:16px;padding-bottom:80px;}
-  .screen.active{display:block;}
+/* ── iOS GUIDE ── */
+#iosGuide{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.85);align-items:flex-end;justify-content:center;}
+#iosGuide.show{display:flex;}
+.ios-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:24px 20px 40px;max-width:480px;width:100%;border-top:1px solid var(--border);}
+.ios-close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;margin-top:-4px;}
+.ios-title{font-size:15px;font-weight:bold;color:var(--accent);margin-bottom:16px;letter-spacing:2px;}
+.ios-steps{list-style:none;display:flex;flex-direction:column;gap:14px;}
+.ios-steps li{display:flex;align-items:flex-start;gap:12px;font-size:13px;line-height:1.5;}
+.ios-num{background:var(--accent);color:#000;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;flex-shrink:0;margin-top:1px;}
 
-  /* ── CAMERA ── */
-  .camera-wrap{position:relative;width:100%;max-width:420px;margin:0 auto 14px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000;aspect-ratio:4/3;}
-  #interactive{width:100%;height:100%;display:none;}
-  #interactive video{width:100%!important;height:100%!important;object-fit:cover;display:block;}
-  #interactive canvas.drawingBuffer{display:none;}
-  .scan-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;}
-  .scan-overlay.show{display:flex;}
-  .scan-frame{width:72%;aspect-ratio:3/1;border:2px solid var(--accent);border-radius:4px;position:relative;box-shadow:0 0 0 2000px rgba(0,0,0,.45);}
-  .scan-line{position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:scan 1.8s linear infinite;}
-  @keyframes scan{0%{top:0}100%{top:100%}}
-  .corner{position:absolute;width:14px;height:14px;border-color:var(--accent2);border-style:solid;}
-  .corner.tl{top:-2px;left:-2px;border-width:2px 0 0 2px}
-  .corner.tr{top:-2px;right:-2px;border-width:2px 2px 0 0}
-  .corner.bl{bottom:-2px;left:-2px;border-width:0 0 2px 2px}
-  .corner.br{bottom:-2px;right:-2px;border-width:0 2px 2px 0}
-  .cam-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:12px;letter-spacing:1px;gap:10px;}
-  .cam-placeholder-icon{font-size:36px;}
-  .cam-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;max-width:420px;margin:0 auto 12px;padding:14px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;letter-spacing:2px;cursor:pointer;}
-  .cam-btn.stop{background:var(--danger);color:#fff;}
-  .cam-btn:disabled{opacity:.5;cursor:not-allowed;}
+/* ── LAYOUT ── */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.header-left{display:flex;align-items:center;gap:10px;}
+.logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);box-shadow:0 0 8px var(--accent2);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.header-title{font-size:13px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;}
+.header-right{display:flex;align-items:center;gap:8px;}
+.item-count{background:var(--accent);color:#000;font-size:11px;font-weight:bold;padding:3px 9px;border-radius:20px;}
+.update-dot{width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 6px var(--warn);display:none;animation:pulse 1s infinite;}
+.update-dot.show{display:block;}
 
-  /* ── FORM ── */
-  .form-card{max-width:420px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
-  .form-label{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;display:block;}
-  .form-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Courier New',monospace;font-size:15px;padding:10px 12px;margin-bottom:12px;outline:none;transition:border-color .2s;}
-  .form-input:focus{border-color:var(--accent);}
-  .form-input.hl{border-color:var(--accent2);background:rgba(0,255,157,.05);}
-  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .add-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#000;border:none;border-radius:8px;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;letter-spacing:2px;cursor:pointer;margin-top:4px;}
-  .flash{max-width:420px;margin:0 auto 12px;padding:10px 14px;border-radius:8px;font-size:12px;letter-spacing:1px;display:none;text-align:center;}
-  .flash.show{display:block;}
-  .flash.ok{background:rgba(0,255,157,.1);border:1px solid var(--success);color:var(--success);}
-  .flash.err{background:rgba(255,71,87,.1);border:1px solid var(--danger);color:var(--danger);}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
+.tab{flex:1;padding:12px;text-align:center;font-size:11px;letter-spacing:2px;color:var(--muted);cursor:pointer;border:none;background:none;text-transform:uppercase;border-bottom:2px solid transparent;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.screen{display:none;padding:16px;padding-bottom:80px;}
+.screen.active{display:block;}
 
-  /* ── LIST ── */
-  .list-toolbar{display:flex;gap:8px;margin-bottom:12px;}
-  .list-toolbar input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Courier New',monospace;font-size:13px;padding:9px 12px;outline:none;}
-  .export-btn{padding:9px 14px;background:var(--accent2);color:#000;border:none;border-radius:6px;font-family:'Courier New',monospace;font-size:11px;font-weight:bold;cursor:pointer;white-space:nowrap;}
-  .list-empty{text-align:center;color:var(--muted);font-size:12px;letter-spacing:2px;padding:40px 0;}
-  .item-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
-  .item-num{font-size:10px;color:var(--muted);min-width:24px;text-align:center;}
-  .item-body{flex:1;min-width:0;}
-  .item-name{font-size:13px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
-  .item-barcode{font-size:11px;color:var(--accent);}
-  .item-meta{font-size:10px;color:var(--muted);margin-top:2px;}
-  .item-qty{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:14px;font-weight:bold;color:var(--accent2);text-align:center;min-width:36px;}
-  .del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px;}
+/* ── CAMERA ── */
+.camera-wrap{position:relative;width:100%;max-width:420px;margin:0 auto 14px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000;aspect-ratio:4/3;}
+#interactive{width:100%;height:100%;display:none;}
+#interactive video{width:100%!important;height:100%!important;object-fit:cover;display:block;}
+#interactive canvas.drawingBuffer{display:none;}
+.scan-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;}
+.scan-overlay.show{display:flex;}
+.scan-frame{width:72%;aspect-ratio:3/1;border:2px solid var(--accent);border-radius:4px;position:relative;box-shadow:0 0 0 2000px rgba(0,0,0,.45);}
+.scan-line{position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:scan 1.8s linear infinite;}
+@keyframes scan{0%{top:0}100%{top:100%}}
+.corner{position:absolute;width:14px;height:14px;border-color:var(--accent2);border-style:solid;}
+.corner.tl{top:-2px;left:-2px;border-width:2px 0 0 2px}
+.corner.tr{top:-2px;right:-2px;border-width:2px 2px 0 0}
+.corner.bl{bottom:-2px;left:-2px;border-width:0 0 2px 2px}
+.corner.br{bottom:-2px;right:-2px;border-width:0 2px 2px 0}
+.cam-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:12px;letter-spacing:1px;gap:10px;}
+.cam-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;max-width:420px;margin:0 auto 12px;padding:14px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;letter-spacing:2px;cursor:pointer;}
+.cam-btn.stop{background:var(--danger);color:#fff;}
+.cam-btn:disabled{opacity:.5;cursor:not-allowed;}
 
-  /* ── SETTINGS ── */
-  .settings-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
-  .settings-title{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
-  .settings-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
-  .settings-row:last-child{border-bottom:none;}
-  .settings-key{font-size:12px;}
-  .settings-val{background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Courier New',monospace;font-size:12px;padding:5px 8px;width:150px;outline:none;}
-  .clear-btn{width:100%;padding:12px;background:rgba(255,71,87,.1);border:1px solid var(--danger);border-radius:8px;color:var(--danger);font-family:'Courier New',monospace;font-size:12px;cursor:pointer;}
+/* ── FORM ── */
+.form-card{max-width:420px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.form-label{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;display:block;}
+.form-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Courier New',monospace;font-size:15px;padding:10px 12px;margin-bottom:12px;outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--accent);}
+.form-input.hl{border-color:var(--accent2);background:rgba(0,255,157,.05);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.add-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#000;border:none;border-radius:8px;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;letter-spacing:2px;cursor:pointer;margin-top:4px;}
+.flash{max-width:420px;margin:0 auto 12px;padding:10px 14px;border-radius:8px;font-size:12px;letter-spacing:1px;display:none;text-align:center;}
+.flash.show{display:block;}
+.flash.ok{background:rgba(0,255,157,.1);border:1px solid var(--success);color:var(--success);}
+.flash.err{background:rgba(255,71,87,.1);border:1px solid var(--danger);color:var(--danger);}
 
-  /* ── STATUS ── */
-  .status-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 16px;display:flex;justify-content:space-between;font-size:10px;color:var(--muted);z-index:100;}
-  .status-ok{color:var(--success);}
+/* ── LIST ── */
+.list-toolbar{display:flex;gap:8px;margin-bottom:12px;}
+.list-toolbar input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Courier New',monospace;font-size:13px;padding:9px 12px;outline:none;}
+.export-btn{padding:9px 14px;background:var(--accent2);color:#000;border:none;border-radius:6px;font-family:'Courier New',monospace;font-size:11px;font-weight:bold;cursor:pointer;white-space:nowrap;}
+.list-empty{text-align:center;color:var(--muted);font-size:12px;letter-spacing:2px;padding:40px 0;}
+.item-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.item-num{font-size:10px;color:var(--muted);min-width:24px;text-align:center;}
+.item-body{flex:1;min-width:0;}
+.item-name{font-size:13px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
+.item-barcode{font-size:11px;color:var(--accent);}
+.item-meta{font-size:10px;color:var(--muted);margin-top:2px;}
+.item-qty{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:14px;font-weight:bold;color:var(--accent2);text-align:center;min-width:36px;}
+.del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px;}
 
-  /* ── INSTALLED BADGE ── */
-  .installed-badge{display:none;background:rgba(0,255,157,.1);border:1px solid var(--success);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--success);text-align:center;margin-bottom:12px;}
-  .installed-badge.show{display:block;}
+/* ── SETTINGS ── */
+.settings-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.settings-title{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.settings-key{font-size:12px;}
+.settings-val{background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Courier New',monospace;font-size:12px;padding:5px 8px;width:150px;outline:none;}
+.clear-btn{width:100%;padding:12px;background:rgba(255,71,87,.1);border:1px solid var(--danger);border-radius:8px;color:var(--danger);font-family:'Courier New',monospace;font-size:12px;cursor:pointer;margin-bottom:10px;}
+
+/* Update button in settings */
+.update-btn-big{width:100%;padding:14px;background:linear-gradient(135deg,#ff9500,var(--warn));color:#000;border:none;border-radius:8px;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;letter-spacing:2px;cursor:pointer;margin-bottom:10px;display:none;}
+.update-btn-big.show{display:block;}
+.version-badge{font-size:10px;color:var(--muted);text-align:center;margin-bottom:16px;}
+
+/* ── STATUS ── */
+.status-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 16px;display:flex;justify-content:space-between;font-size:10px;color:var(--muted);z-index:100;}
+.status-ok{color:var(--success);}
+.installed-badge{display:none;background:rgba(0,255,157,.1);border:1px solid var(--success);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--success);text-align:center;margin-bottom:12px;}
+.installed-badge.show{display:block;}
 </style>
 
 </head>
 <body>
+
+<!-- UPDATE BANNER -->
+
+<div id="updateBanner">
+  <div class="ub-row">
+    <div class="ub-icon">🔄</div>
+    <div class="ub-text">
+      <div class="ub-title">YENİ GÜNCELLEME VAR!</div>
+      <div class="ub-sub">Verileriniz korunur — sadece uygulama yenilenir</div>
+    </div>
+  </div>
+  <div class="ub-actions">
+    <button class="ub-btn update" onclick="applyUpdate()">⬆️ &nbsp;GÜNCELLE</button>
+    <button class="ub-btn later" onclick="dismissUpdate()">Sonra</button>
+  </div>
+</div>
 
 <!-- INSTALL BANNER -->
 
@@ -178,46 +194,37 @@ window.addEventListener('DOMContentLoaded', () => {
   <div class="ib-row">
     <div class="ib-icon">📦</div>
     <div class="ib-text">
-      <div class="ib-title">STOK SAYIM UYGULAMASI</div>
-      <div class="ib-sub">Ana ekrana ekleyerek uygulama gibi kullan<br>İnternet bağlantısı gerektirmez • Ücretsiz</div>
+      <div class="ib-title">UYGULAMAYI YÜKLE</div>
+      <div class="ib-sub">Ana ekrana ekle — internet olmadan çalışır</div>
     </div>
   </div>
   <div class="ib-actions">
     <button class="ib-btn install" id="installBtn" onclick="doInstall()">📲 &nbsp;YÜKLE</button>
-    <button class="ib-btn dismiss" onclick="dismissBanner()">Şimdi Değil</button>
+    <button class="ib-btn dismiss" onclick="dismissInstall()">Şimdi Değil</button>
   </div>
 </div>
 
-<!-- iOS GUIDE SHEET -->
+<!-- iOS GUIDE -->
 
 <div id="iosGuide">
   <div class="ios-sheet">
     <button class="ios-close" onclick="document.getElementById('iosGuide').classList.remove('show')">✕</button>
     <div class="ios-title">📲 &nbsp;ANA EKRANA EKLE</div>
     <ul class="ios-steps">
-      <li>
-        <div class="ios-num">1</div>
-        <div>Tarayıcı alttaki <span class="ios-icon">⬆️</span> <strong>Paylaş</strong> butonuna dokun</div>
-      </li>
-      <li>
-        <div class="ios-num">2</div>
-        <div>Aşağı kaydır ve <strong>"Ana Ekrana Ekle"</strong> <span class="ios-icon">➕</span> seçeneğine dokun</div>
-      </li>
-      <li>
-        <div class="ios-num">3</div>
-        <div>Sağ üstte <strong>"Ekle"</strong> butonuna bas — uygulama ana ekranda görünür</div>
-      </li>
-      <li>
-        <div class="ios-num">4</div>
-        <div>Artık <strong>tam ekran uygulama</strong> olarak çalışır, internet gerektirmez 🎉</div>
-      </li>
+      <li><div class="ios-num">1</div><div>Alttaki <strong>⬆️ Paylaş</strong> butonuna dokun</div></li>
+      <li><div class="ios-num">2</div><div><strong>"Ana Ekrana Ekle" ➕</strong> seçeneğine dokun</div></li>
+      <li><div class="ios-num">3</div><div>Sağ üstte <strong>"Ekle"</strong> butonuna bas</div></li>
+      <li><div class="ios-num">4</div><div>Artık tam ekran uygulama olarak çalışır 🎉</div></li>
     </ul>
   </div>
 </div>
 
 <div class="header">
   <div class="header-left"><div class="logo-dot"></div><span class="header-title">Stok Sayım</span></div>
-  <span class="item-count" id="headerCount">0 ÜRÜN</span>
+  <div class="header-right">
+    <div class="update-dot" id="updateDot" title="Güncelleme var"></div>
+    <span class="item-count" id="headerCount">0 ÜRÜN</span>
+  </div>
 </div>
 
 <div class="tabs">
@@ -226,13 +233,13 @@ window.addEventListener('DOMContentLoaded', () => {
   <button class="tab" onclick="switchTab('settings',this)">⚙️ AYAR</button>
 </div>
 
-<!-- SCAN TAB -->
+<!-- SCAN -->
 
 <div class="screen active" id="screen-scan">
   <div class="installed-badge" id="installedBadge">✓ Uygulama olarak çalışıyor</div>
   <div class="camera-wrap">
     <div class="cam-placeholder" id="placeholder">
-      <div class="cam-placeholder-icon">📷</div>
+      <div style="font-size:36px">📷</div>
       <div style="text-align:center">Kamera başlatmak için<br>aşağıdaki butona bas</div>
     </div>
     <div id="interactive"></div>
@@ -250,7 +257,7 @@ window.addEventListener('DOMContentLoaded', () => {
     <label class="form-label">Barkod</label>
     <input type="text" class="form-input" id="barcodeInput" placeholder="Otomatik veya manuel gir" inputmode="numeric">
     <label class="form-label">Ürün Adı</label>
-    <input type="text" class="form-input" id="nameInput" placeholder="İşitme cihazı / Pil / Aksesuar...">
+    <input type="text" class="form-input" id="nameInput" placeholder="Ürün adını gir...">
     <div class="form-row">
       <div>
         <label class="form-label">Miktar</label>
@@ -267,7 +274,7 @@ window.addEventListener('DOMContentLoaded', () => {
   </div>
 </div>
 
-<!-- LIST TAB -->
+<!-- LIST -->
 
 <div class="screen" id="screen-list">
   <div class="list-toolbar">
@@ -277,7 +284,7 @@ window.addEventListener('DOMContentLoaded', () => {
   <div id="listContainer"><div class="list-empty">Henüz ürün eklenmedi</div></div>
 </div>
 
-<!-- SETTINGS TAB -->
+<!-- SETTINGS -->
 
 <div class="screen" id="screen-settings">
   <div class="settings-card">
@@ -287,18 +294,22 @@ window.addEventListener('DOMContentLoaded', () => {
     <div class="settings-row"><span class="settings-key">Sayan Kişi</span><input type="text" class="settings-val" id="countPerson" placeholder="Ad Soyad"></div>
   </div>
   <div class="settings-card">
-    <div class="settings-title">Uygulama Kurulumu</div>
-    <div class="settings-row"><span class="settings-key">Platform</span><span id="platformInfo" style="color:var(--accent);font-size:12px">Algılanıyor...</span></div>
-    <div class="settings-row"><span class="settings-key">Durum</span><span id="pwaStatus" style="font-size:12px;color:var(--muted)">—</span></div>
-    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
-      <button class="add-btn" id="settingsInstallBtn" onclick="doInstall()" style="display:none">📲 &nbsp;UYGULAMAYI YÜKLE</button>
-      <button class="add-btn" id="settingsIosBtn" onclick="showIosGuide()" style="display:none;background:linear-gradient(135deg,#007aff,#00d4ff)">📲 &nbsp;ANA EKRANA EKLE (iOS)</button>
-    </div>
+    <div class="settings-title">Güncelleme</div>
+    <div class="settings-row"><span class="settings-key">Mevcut Sürüm</span><span id="versionDisplay" style="color:var(--accent);font-size:12px"></span></div>
+    <div class="settings-row"><span class="settings-key">Durum</span><span id="updateStatus" style="font-size:12px;color:var(--muted)">Kontrol ediliyor...</span></div>
   </div>
+  <button class="update-btn-big" id="updateBtnBig" onclick="applyUpdate()">🔄 &nbsp;GÜNCELLEME YÜKLE</button>
   <div class="settings-card">
     <div class="settings-title">Özet</div>
     <div class="settings-row"><span class="settings-key">Toplam Ürün</span><span id="statsTotal" style="color:var(--accent2)">0</span></div>
     <div class="settings-row"><span class="settings-key">Toplam Miktar</span><span id="statsQty" style="color:var(--accent)">0</span></div>
+  </div>
+  <div class="settings-card">
+    <div class="settings-title">Kurulum</div>
+    <div class="settings-row"><span class="settings-key">Platform</span><span id="platformInfo" style="color:var(--accent);font-size:12px">—</span></div>
+    <div class="settings-row"><span class="settings-key">Durum</span><span id="pwaStatus" style="font-size:12px;color:var(--muted)">—</span></div>
+    <button class="add-btn" id="settingsInstallBtn" onclick="doInstall()" style="display:none;margin-top:10px">📲 &nbsp;UYGULAMAYI YÜKLE</button>
+    <button class="add-btn" id="settingsIosBtn" onclick="showIosGuide()" style="display:none;margin-top:10px;background:linear-gradient(135deg,#007aff,#00d4ff)">📲 &nbsp;ANA EKRANA EKLE (iOS)</button>
   </div>
   <button class="clear-btn" onclick="clearAll()">🗑 &nbsp;TÜM VERİYİ TEMİZLE</button>
 </div>
@@ -308,71 +319,144 @@ window.addEventListener('DOMContentLoaded', () => {
   <span id="statusRight" class="status-ok">● AKTİF</span>
 </div>
 
-<!-- SERVICE WORKER + PWA LOGIC -->
-
 <script>
-// ── Service Worker (offline support) ──
+// ══════════════════════════════════════════
+//  SERVICE WORKER — güncelleme mekanizması
+// ══════════════════════════════════════════
+const CACHE_NAME = 'stok-v' + APP_VERSION;
+
 const SW_CODE = `
-const CACHE='stok-v1';
-const FILES=['./', './index.html'];
-self.addEventListener('install', e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).catch(()=>{})));
-self.addEventListener('fetch', e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)).catch(()=>caches.match('./'))));
+const CACHE = '${CACHE_NAME}';
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(['./'])).catch(()=>{})
+  );
+  self.skipWaiting(); // yeni SW hemen aktif ol
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    fetch(e.request).then(r => {
+      const clone = r.clone();
+      caches.open(CACHE).then(c => c.put(e.request, clone));
+      return r;
+    }).catch(() => caches.match(e.request))
+  );
+});
+// Mesaj al — güncelleme tetikle
+self.addEventListener('message', e => {
+  if (e.data === 'skipWaiting') self.skipWaiting();
+});
 `;
+
+let swRegistration = null;
+let newWorker = null;
+let updateAvailable = false;
+
 if ('serviceWorker' in navigator) {
   const swBlob = new Blob([SW_CODE], {type:'application/javascript'});
-  const swURL  = URL.createObjectURL(swBlob);
-  navigator.serviceWorker.register(swURL, {scope:'./'}).catch(()=>{});
+  navigator.serviceWorker.register(URL.createObjectURL(swBlob), {scope:'./'})
+    .then(reg => {
+      swRegistration = reg;
+
+      // Güncellemeleri dinle
+      reg.addEventListener('updatefound', () => {
+        newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // Yeni versiyon hazır, eski versiyon hâlâ aktif
+            showUpdateBanner();
+          }
+        });
+      });
+
+      // Sayfa yüklenirken zaten bekleyen bir SW var mı?
+      if (reg.waiting) showUpdateBanner();
+    }).catch(()=>{});
+
+  // SW güncellenince sayfayı yenile (veriler korunur)
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (updateAvailable) window.location.reload();
+  });
 }
 
-// ── Platform detection ──
-const isIOS     = /iphone|ipad|ipod/i.test(navigator.userAgent);
+function showUpdateBanner() {
+  updateAvailable = true;
+  document.getElementById('updateBanner').classList.add('show');
+  document.getElementById('updateDot').classList.add('show');
+  document.getElementById('updateBtnBig').classList.add('show');
+  document.getElementById('updateStatus').textContent = '🟡 Güncelleme hazır';
+  document.getElementById('updateStatus').style.color = 'var(--warn)';
+}
+
+function applyUpdate() {
+  // Veriyi koru
+  const savedItems = localStorage.getItem('stockItems');
+  // SW'ye güncelle komutu gönder
+  if (swRegistration && swRegistration.waiting) {
+    swRegistration.waiting.postMessage('skipWaiting');
+  } else {
+    // Cache temizle ve yenile
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
+      window.location.reload(true);
+    });
+  }
+}
+
+function dismissUpdate() {
+  document.getElementById('updateBanner').classList.remove('show');
+}
+
+// ══════════════════════════════════════════
+//  INSTALL (PWA)
+// ══════════════════════════════════════════
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isAndroid = /android/i.test(navigator.userAgent);
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
 let deferredPrompt = null;
 
 window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  showAndroidBanner();
+  e.preventDefault(); deferredPrompt = e;
+  if (!localStorage.getItem('installDismissed')) showInstallBanner();
 });
-
 window.addEventListener('appinstalled', () => {
-  hideBanner();
+  hideInstallBanner();
   document.getElementById('installedBadge').classList.add('show');
   updatePwaStatus();
 });
 
-function showAndroidBanner() {
-  if (isStandalone || localStorage.getItem('installDismissed')) return;
+function showInstallBanner() {
+  document.getElementById('installBanner').style.top = updateAvailable ? '80px' : '0';
   document.getElementById('installBanner').classList.add('show');
 }
-
-function showIosGuide() {
-  document.getElementById('iosGuide').classList.add('show');
-}
-
-function dismissBanner() {
-  document.getElementById('installBanner').classList.remove('show');
-  localStorage.setItem('installDismissed', '1');
-}
-
-function hideBanner() {
-  document.getElementById('installBanner').classList.remove('show');
-}
+function hideInstallBanner() { document.getElementById('installBanner').classList.remove('show'); }
+function dismissInstall() { hideInstallBanner(); localStorage.setItem('installDismissed','1'); }
+function showIosGuide() { document.getElementById('iosGuide').classList.add('show'); }
 
 async function doInstall() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
     const {outcome} = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    hideBanner();
-    if (outcome === 'accepted') {
-      document.getElementById('installedBadge').classList.add('show');
-    }
-  } else if (isIOS) {
-    showIosGuide();
-  }
+    deferredPrompt = null; hideInstallBanner();
+  } else if (isIOS) { showIosGuide(); }
+}
+
+if (isIOS && !isStandalone && !localStorage.getItem('iosDismissed')) {
+  setTimeout(() => {
+    const b = document.getElementById('installBanner');
+    b.querySelector('.ib-title').textContent = 'ANA EKRANA EKLE';
+    b.querySelector('.ib-sub').textContent = 'Safari → ⬆️ Paylaş → "Ana Ekrana Ekle"';
+    b.querySelector('.ib-btn.install').textContent = '📲 NASIL YAPILIR?';
+    b.querySelector('.ib-btn.install').onclick = showIosGuide;
+    b.classList.add('show');
+  }, 1500);
 }
 
 function updatePwaStatus() {
@@ -380,48 +464,35 @@ function updatePwaStatus() {
   const statEl = document.getElementById('pwaStatus');
   const andBtn = document.getElementById('settingsInstallBtn');
   const iosBtn = document.getElementById('settingsIosBtn');
+  document.getElementById('versionDisplay').textContent = 'v' + APP_VERSION;
 
-  if (isIOS)          { platEl.textContent = '🍎 iPhone / iPad'; }
-  else if (isAndroid) { platEl.textContent = '🤖 Android'; }
-  else                { platEl.textContent = '💻 Masaüstü / Web'; }
+  if (isIOS) platEl.textContent = '🍎 iPhone / iPad';
+  else if (isAndroid) platEl.textContent = '🤖 Android';
+  else platEl.textContent = '💻 Web';
 
   if (isStandalone) {
-    statEl.textContent = '✓ Uygulama olarak yüklü';
-    statEl.style.color = 'var(--success)';
+    statEl.textContent = '✓ Yüklü'; statEl.style.color='var(--success)';
     document.getElementById('installedBadge').classList.add('show');
   } else if (isIOS) {
-    statEl.textContent = 'Ana ekrana eklenebilir';
-    statEl.style.color = 'var(--muted)';
-    iosBtn.style.display = 'block';
+    statEl.textContent = 'Ana ekrana eklenebilir'; iosBtn.style.display='block';
   } else if (deferredPrompt) {
-    statEl.textContent = 'Yüklemeye hazır';
-    statEl.style.color = 'var(--accent2)';
-    andBtn.style.display = 'block';
+    statEl.textContent = 'Yüklemeye hazır'; statEl.style.color='var(--accent2)';
+    andBtn.style.display='block';
   } else {
     statEl.textContent = 'Web üzerinden çalışıyor';
-    statEl.style.color = 'var(--muted)';
+  }
+
+  if (!updateAvailable) {
+    document.getElementById('updateStatus').textContent = '✓ Güncel';
+    document.getElementById('updateStatus').style.color = 'var(--success)';
   }
 }
 
-// iOS banner (show once, after 1.5s)
-if (isIOS && !isStandalone && !localStorage.getItem('iosDismissed')) {
-  setTimeout(() => {
-    const b = document.getElementById('installBanner');
-    b.querySelector('.ib-title').textContent = 'ANA EKRANA EKLE';
-    b.querySelector('.ib-sub').textContent = 'Safari\'de ⬆️ Paylaş → "Ana Ekrana Ekle" adımlarını uygula';
-    b.querySelector('.ib-btn.install').innerHTML = '📲 &nbsp;NASIL YAPILIR?';
-    b.querySelector('.ib-btn.install').onclick = showIosGuide;
-    b.classList.add('show');
-  }, 1500);
-}
-
-document.getElementById('installBanner').querySelector('.ib-btn.dismiss').addEventListener('click', () => {
-  if (isIOS) localStorage.setItem('iosDismissed','1');
-});
-
-// ── App Logic ──
+// ══════════════════════════════════════════
+//  APP LOGIC
+// ══════════════════════════════════════════
 let items = JSON.parse(localStorage.getItem('stockItems') || '[]');
-let cameraActive = false, lastCode = '', lastTime = 0;
+let cameraActive=false, lastCode='', lastTime=0;
 
 function switchTab(tab, el) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -431,87 +502,82 @@ function switchTab(tab, el) {
   if (tab==='list') renderList();
   if (tab==='settings') {
     document.getElementById('statsTotal').textContent = items.length;
-    document.getElementById('statsQty').textContent   = items.reduce((s,i)=>s+i.qty,0);
+    document.getElementById('statsQty').textContent = items.reduce((s,i)=>s+i.qty,0);
     updatePwaStatus();
   }
 }
 
-function toggleCamera() { cameraActive ? stopCamera() : startCamera(); }
+function toggleCamera(){ cameraActive ? stopCamera() : startCamera(); }
 
-function startCamera() {
-  const btn = document.getElementById('camBtn');
-  btn.textContent = '⏳ Başlatılıyor...'; btn.disabled = true;
+function startCamera(){
+  const btn=document.getElementById('camBtn');
+  btn.textContent='⏳ Başlatılıyor...'; btn.disabled=true;
   Quagga.init({
     inputStream:{ type:'LiveStream', target:document.getElementById('interactive'),
       constraints:{facingMode:'environment', width:{ideal:1280}, height:{ideal:720}} },
-    locator:{patchSize:'medium', halfSample:true},
-    numOfWorkers:2, frequency:8,
-    decoder:{readers:['ean_reader','ean_8_reader','code_128_reader','code_39_reader','upc_reader','upc_e_reader']},
+    locator:{patchSize:'large', halfSample:false},
+    numOfWorkers:0, frequency:15,
+    decoder:{readers:['ean_reader','ean_8_reader','code_128_reader','upc_reader'], multiple:false},
     locate:true
   }, err=>{
-    btn.disabled = false;
-    if (err) {
-      btn.innerHTML = '📷 &nbsp;KAMERA BAŞLAT';
-      showFlash('❌ Kamera açılamadı. Ayarlar → Safari → Kamera → İzin Ver', 'err');
-      setStatus('Kamera hatası', false); return;
-    }
-    Quagga.start(); cameraActive = true;
-    document.getElementById('placeholder').style.display = 'none';
-    document.getElementById('interactive').style.display = 'block';
+    btn.disabled=false;
+    if(err){ btn.innerHTML='📷 &nbsp;KAMERA BAŞLAT'; showFlash('❌ Kamera açılamadı','err'); return; }
+    Quagga.start(); cameraActive=true;
+    document.getElementById('placeholder').style.display='none';
+    document.getElementById('interactive').style.display='block';
     document.getElementById('scanOverlay').classList.add('show');
-    btn.innerHTML = '⏹ &nbsp;KAMERAYI DURDUR'; btn.classList.add('stop');
+    btn.innerHTML='⏹ &nbsp;KAMERAYI DURDUR'; btn.classList.add('stop');
     setStatus('Kamera aktif — barkod okutun', true);
   });
   Quagga.offDetected();
   Quagga.onDetected(result=>{
-    const code = result.codeResult.code;
-    const conf = result.codeResult.startInfo?.error || 0;
-    if (!code || code.length < 6) return;
-    const now2 = Date.now();
-    if (code===lastCode && now2-lastTime<3000) return;
+    const code=result.codeResult.code;
+    if(!code || code.length<6) return;
+    const now2=Date.now();
+    if(code===lastCode && now2-lastTime<3000) return;
     lastCode=code; lastTime=now2;
-    document.getElementById('barcodeInput').value = code;
+    document.getElementById('barcodeInput').value=code;
     document.getElementById('barcodeInput').classList.add('hl');
     document.getElementById('nameInput').focus();
-    showFlash('✓ Okundu: '+code, 'ok');
-    if (navigator.vibrate) navigator.vibrate(120);
+    showFlash('✓ Okundu: '+code,'ok');
+    if(navigator.vibrate) navigator.vibrate(120);
     setTimeout(()=>document.getElementById('barcodeInput').classList.remove('hl'),1500);
   });
 }
 
-function stopCamera() {
-  try { Quagga.stop(); } catch(e) {}
-  cameraActive = false;
-  document.getElementById('interactive').style.display = 'none';
+function stopCamera(){
+  try{Quagga.stop();}catch(e){}
+  cameraActive=false;
+  document.getElementById('interactive').style.display='none';
   document.getElementById('scanOverlay').classList.remove('show');
-  document.getElementById('placeholder').style.display = 'flex';
-  const btn = document.getElementById('camBtn');
-  btn.innerHTML = '📷 &nbsp;KAMERA BAŞLAT'; btn.classList.remove('stop');
-  setStatus('Kamera durduruldu', false);
+  document.getElementById('placeholder').style.display='flex';
+  const btn=document.getElementById('camBtn');
+  btn.innerHTML='📷 &nbsp;KAMERA BAŞLAT'; btn.classList.remove('stop');
+  setStatus('Kamera durduruldu',false);
 }
 
-function addItem() {
-  const barcode = document.getElementById('barcodeInput').value.trim();
-  const name    = document.getElementById('nameInput').value.trim();
-  const qty     = parseInt(document.getElementById('qtyInput').value)||1;
-  const unit    = document.getElementById('unitInput').value.trim()||'Adet';
-  const note    = document.getElementById('noteInput').value.trim();
-  if (!barcode){ showFlash('❌ Barkod boş!','err'); return; }
-  if (!name)   { showFlash('❌ Ürün adı boş!','err'); return; }
-  const ex = items.find(i=>i.barcode===barcode);
-  if (ex) { ex.qty+=qty; ex.lastUpdated=tsNow(); showFlash('↑ Miktar: '+ex.qty+' '+unit,'ok'); }
-  else    { items.push({id:Date.now(),barcode,name,qty,unit,note,addedAt:tsNow(),lastUpdated:tsNow()}); showFlash('✓ Eklendi: '+name,'ok'); }
+function addItem(){
+  const barcode=document.getElementById('barcodeInput').value.trim();
+  const name=document.getElementById('nameInput').value.trim();
+  const qty=parseInt(document.getElementById('qtyInput').value)||1;
+  const unit=document.getElementById('unitInput').value.trim()||'Adet';
+  const note=document.getElementById('noteInput').value.trim();
+  if(!barcode){showFlash('❌ Barkod boş!','err');return;}
+  if(!name){showFlash('❌ Ürün adı boş!','err');return;}
+  const ex=items.find(i=>i.barcode===barcode);
+  if(ex){ex.qty+=qty;ex.lastUpdated=tsNow();showFlash('↑ Miktar: '+ex.qty+' '+unit,'ok');}
+  else{items.push({id:Date.now(),barcode,name,qty,unit,note,addedAt:tsNow(),lastUpdated:tsNow()});showFlash('✓ Eklendi: '+name,'ok');}
   save(); updateCount();
   ['barcodeInput','nameInput','noteInput'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('qtyInput').value='1';
   document.getElementById('barcodeInput').focus();
 }
 
-function renderList() {
+function renderList(){
   const q=(document.getElementById('searchInput')?.value||'').toLowerCase();
   const f=items.filter(i=>i.barcode.toLowerCase().includes(q)||i.name.toLowerCase().includes(q));
   const c=document.getElementById('listContainer');
-  if (!f.length){ c.innerHTML='<div class="list-empty">Kayıt bulunamadı</div>'; return; }
+  if(!f.length){c.innerHTML='<div class="list-empty">Kayıt bulunamadı</div>';return;}
   c.innerHTML=f.map((item,idx)=>`
     <div class="item-card">
       <span class="item-num">${idx+1}</span>
@@ -525,16 +591,16 @@ function renderList() {
     </div>`).join('');
 }
 
-function deleteItem(id) {
-  if (!confirm('Silinsin mi?')) return;
+function deleteItem(id){
+  if(!confirm('Silinsin mi?')) return;
   items=items.filter(i=>i.id!==id); save(); renderList(); updateCount();
 }
 
-function exportExcel() {
-  if (!items.length){ showFlash('❌ Liste boş!','err'); return; }
-  const branch = document.getElementById('branchName').value||'Şube';
-  const date   = document.getElementById('countDate').value||new Date().toISOString().slice(0,10);
-  const person = document.getElementById('countPerson').value||'';
+function exportExcel(){
+  if(!items.length){showFlash('❌ Liste boş!','err');return;}
+  const branch=document.getElementById('branchName').value||'Şube';
+  const date=document.getElementById('countDate').value||new Date().toISOString().slice(0,10);
+  const person=document.getElementById('countPerson').value||'';
   const hdr=['ŞUBE','TARİH','SAYAN KİŞİ','BARKOD','ÜRÜN ADI','MİKTAR','BİRİM','NOT','EKLEME'];
   const rows=items.map(i=>[branch,date,person,i.barcode,i.name,i.qty,i.unit,i.note||'',i.addedAt]);
   const wb=XLSX.utils.book_new();
@@ -545,17 +611,17 @@ function exportExcel() {
   showFlash('✓ Excel indirildi','ok');
 }
 
-function save()        { localStorage.setItem('stockItems',JSON.stringify(items)); }
-function updateCount() { document.getElementById('headerCount').textContent=items.length+' ÜRÜN'; }
-function tsNow()       { return new Date().toLocaleTimeString('tr-TR'); }
-function showFlash(msg,type){ const el=document.getElementById('flash'); el.textContent=msg; el.className='flash show '+type; clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),3000); }
-function setStatus(msg,ok)  { document.getElementById('statusLeft').textContent=msg; const r=document.getElementById('statusRight'); r.textContent=ok?'● AKTİF':'○ BEKLİYOR'; r.className=ok?'status-ok':''; }
-function clearAll()    { if (!confirm('Tüm veri silinsin mi?')) return; items=[]; save(); updateCount(); renderList(); showFlash('✓ Temizlendi','ok'); }
+function save(){localStorage.setItem('stockItems',JSON.stringify(items));}
+function updateCount(){document.getElementById('headerCount').textContent=items.length+' ÜRÜN';}
+function tsNow(){return new Date().toLocaleTimeString('tr-TR');}
+function showFlash(msg,type){const el=document.getElementById('flash');el.textContent=msg;el.className='flash show '+type;clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),3000);}
+function setStatus(msg,ok){document.getElementById('statusLeft').textContent=msg;const r=document.getElementById('statusRight');r.textContent=ok?'● AKTİF':'○ BEKLİYOR';r.className=ok?'status-ok':'';}
+function clearAll(){if(!confirm('Tüm veri silinsin mi?')) return;items=[];save();updateCount();renderList();showFlash('✓ Temizlendi','ok');}
 
-document.getElementById('countDate').value = new Date().toISOString().slice(0,10);
+document.getElementById('countDate').value=new Date().toISOString().slice(0,10);
 updateCount(); updatePwaStatus();
-document.addEventListener('keydown', e=>{ if(e.key==='Enter'&&document.getElementById('screen-scan').classList.contains('active')) addItem(); });
-if (isStandalone) document.getElementById('installedBadge').classList.add('show');
+if(isStandalone) document.getElementById('installedBadge').classList.add('show');
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('screen-scan').classList.contains('active'))addItem();});
 </script>
 
 </body>
