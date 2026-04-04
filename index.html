@@ -464,9 +464,11 @@ function startCamera() {
   });
   Quagga.offDetected();
   Quagga.onDetected(result=>{
-    const code = result.codeResult.code; if (!code) return;
+    const code = result.codeResult.code;
+    const conf = result.codeResult.startInfo?.error || 0;
+    if (!code || code.length < 6) return;
     const now2 = Date.now();
-    if (code===lastCode && now2-lastTime<2500) return;
+    if (code===lastCode && now2-lastTime<3000) return;
     lastCode=code; lastTime=now2;
     document.getElementById('barcodeInput').value = code;
     document.getElementById('barcodeInput').classList.add('hl');
