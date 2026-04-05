@@ -944,13 +944,22 @@ stopCam();
 });
 }
 function stopCam(){
-try{Quagga.stop();}catch(e){}camActive=false;
-const el=document.getElementById(‘interactive’);if(el)el.style.display=‘none’;
-const ov=document.getElementById(‘scanOv’);if(ov)ov.classList.remove(‘show’);
-const cw=document.getElementById(‘cameraWrap’);if(cw)cw.classList.remove(‘show’);
-document.getElementById(‘btnBarcode’).className=‘scan-btn’;
-document.getElementById(‘btnSeri’).className=‘scan-btn’;
-setStatus(‘Hazır’,false);
+  try { Quagga.stop(); } catch(e) {}
+  camActive = false;
+
+  const el = document.getElementById('interactive');
+  if(el) el.style.display = 'none';
+
+  const ov = document.getElementById('scanOv');
+  if(ov) ov.classList.remove('show');
+
+  const cw = document.getElementById('cameraWrap');
+  if(cw) cw.classList.remove('show');
+
+  document.getElementById('btnBarcode').className = 'scan-btn';
+  document.getElementById('btnSeri').className = 'scan-btn';
+
+  setStatus('Hazır', false);
 }
 function onBarcodeInput(){
 const inp=document.getElementById(‘fi-barcode’);if(!inp)return;
