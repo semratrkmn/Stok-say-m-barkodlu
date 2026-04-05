@@ -256,23 +256,26 @@ transition:background-color 5000s ease-in-out 0s;
       <input type="text" class="login-input" id="loginUser"
         placeholder="kullanıcı adı"
         autocomplete="off" autocapitalize="none"
-        autocorrect="off" spellcheck="false">
+        autocorrect="off" spellcheck="false"
+        onkeyup="if(event.keyCode===13)tryLogin()">
     </div>
     <div class="login-field">
       <label class="login-label">Şifre</label>
-      <div style="position:relative;display:flex;align-items:center">
+      <div style="position:relative">
         <input type="password" class="login-input" id="loginPass"
           placeholder="şifre"
           autocomplete="off"
-          style="padding-right:76px;flex:1">
-        <span id="togglePass"
-          style="position:absolute;right:14px;color:#00d4ff;font-size:12px;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;padding:8px 4px;letter-spacing:.5px">
+          style="padding-right:80px"
+          onkeyup="if(event.keyCode===13)tryLogin()">
+        <span
+          style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#00d4ff;font-size:12px;font-weight:700;cursor:pointer;-webkit-user-select:none;user-select:none;letter-spacing:.5px"
+          onclick="var p=document.getElementById('loginPass');var s=this;if(p.type==='password'){p.type='text';s.textContent='GİZLE';s.style.color='#00ff9d';}else{p.type='password';s.textContent='GÖSTER';s.style.color='#00d4ff';}">
           GÖSTER
         </span>
       </div>
     </div>
     <div id="loginErr" style="color:#ff4757;font-size:13px;text-align:center;min-height:20px;margin:8px 0"></div>
-    <button type="button" id="loginBtn" class="login-btn">GİRİŞ YAP</button>
+    <button type="button" class="login-btn" onclick="tryLogin()">GİRİŞ YAP</button>
   </div>
 </div>
 
@@ -591,6 +594,42 @@ const CATEGORIES = {
   "Cihaz":    ["Comfort","Comfort Max","Premium","Standart","Mini"],
   "Aksesuar": ["Pil","Şarj","Saf Malzeme","Yardımcı Malzeme","Kılıf","Temizlik"]
 };
+
+// ════ tryLogin — HTML onclick'ten çağrılır, window.onload beklenmez ════
+function tryLogin() {
+  var uEl  = document.getElementById('loginUser');
+  var pEl  = document.getElementById('loginPass');
+  var errEl = document.getElementById('loginErr');
+  if (!uEl || !pEl || !errEl) { alert('Form elemanları bulunamadı'); return; }
+  var u = (uEl.value || '').replace(/\s/g,'').toLowerCase();
+  var p = (pEl.value || '');
+  errEl.textContent = '';
+  if (!u || !p) { errEl.textContent = 'Kullanıcı adı ve şifre girin'; return; }
+  var user = null;
+  for (var i = 0; i < USERS.length; i++) {
+    if (USERS[i].username.toLowerCase() === u && USERS[i].password === p) {
+      user = USERS[i]; break;
+    }
+  }
+  if (!user) { errEl.textContent = 'Kullanıcı adı veya şifre hatalı'; return; }
+  var now = Date.now();
+  activeSessions = activeSessions.filter(function(s){ return now - s.time < 8*60*60*1000; });
+  var mySession = null;
+  for (var j = 0; j < activeSessions.length; j++) {
+    if (activeSessions[j].uid === user.id) { mySession = activeSessions[j]; break; }
+  }
+  if (!mySession && activeSessions.length >= MAX_SESSIONS) {
+    errEl.textContent = 'Maksimum oturum sayısına ulaşıldı (' + MAX_SESSIONS + ')'; return;
+  }
+  if (!mySession) activeSessions.push({ uid: user.id, time: now });
+  localStorage.setItem('activeSessions', JSON.stringify(activeSessions));
+  var logs = JSON.parse(localStorage.getItem('loginLogs') || '[]');
+  logs.unshift({ user: user.name, username: user.username, time: tsNow(), role: user.role, action: 'GİRİŞ' });
+  if (logs.length > 200) logs.length = 200;
+  localStorage.setItem('loginLogs', JSON.stringify(logs));
+  currentUser = user;
+  startApp();
+}
 
 // ════ FIELD DEFS ════
 const FIELD_DEFS = [
@@ -1231,36 +1270,8 @@ function renderLoginLogs(){
   c.innerHTML=logs.slice(0,50).map(l=>`<div class="log-row"><span class="log-time">${l.time}</span><span style="font-weight:600">${l.user}</span><span style="color:var(--muted);font-size:10px">${l.action} · ${l.role}</span></div>`).join('');
 }
 
-// ════ LOGIN EVENTS ════
-window.onload = function() {
-var btn  = document.getElementById(‘loginBtn’);
-var tog  = document.getElementById(‘togglePass’);
-var pass = document.getElementById(‘loginPass’);
-var user = document.getElementById(‘loginUser’);
-
-// Giriş yap butonu
-if (btn) {
-btn.onclick = function() { doLogin(); };
-}
-
-// Enter tuşu
-function onEnter(e) {
-if (e.keyCode === 13 || e.which === 13) { doLogin(); }
-}
-if (user) user.onkeyup = onEnter;
-if (pass) pass.onkeyup = onEnter;
-
-// Şifre göster/gizle — span tıklaması
-var passVisible = false;
-if (tog) {
-tog.onclick = function() {
-passVisible = !passVisible;
-pass.type = passVisible ? ‘text’ : ‘password’;
-tog.textContent = passVisible ? ‘GİZLE’ : ‘GÖSTER’;
-tog.style.color = passVisible ? ‘#00ff9d’ : ‘#00d4ff’;
-};
-}
-};
+// ════ ENTER KEY / window.onload artık gerekmez ════
+// tryLogin HTML inline onclick/onkeyup ile çağrılıyor
 </script>
 
 </body>
