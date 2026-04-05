@@ -926,9 +926,9 @@ document.getElementById(‘scanFr’).style.borderColor=isB?‘var(–accent)’
 document.getElementById(‘scanLine’).style.background=isB?‘var(–accent)’:‘var(–accent2)’;
 document.getElementById(‘cameraWrap’).classList.add(‘show’);
 setStatus(isB?‘Barkod bekleniyor…’:‘Seri no bekleniyor…’,true);
-Quagga.init({inputStream:{type:‘LiveStream’,target:document.getElementById(‘interactive’),constraints:{facingMode:‘environment’,width:{ideal:1280},height:{ideal:720}}},locator:{patchSize:‘large’,halfSample:false},numOfWorkers:0,frequency:15,decoder:{readers:[‘ean_reader’,‘ean_8_reader’,‘code_128_reader’,‘code_39_reader’,‘upc_reader’],multiple:false},locate:true},err=>{
+Quagga.init({inputStream:{type:‘LiveStream’,target:document.getElementById('interactive'),constraints:{facingMode:‘environment’,width:{ideal:1280},height:{ideal:720}}},locator:{patchSize:‘large’,halfSample:false},numOfWorkers:0,frequency:15,decoder:{readers:[‘ean_reader’,‘ean_8_reader’,‘code_128_reader’,‘code_39_reader’,‘upc_reader’],multiple:false},locate:true},err=>{
 if(err){document.getElementById(‘cameraWrap’).classList.remove(‘show’);showFlash(‘❌ Kamera açılamadı’,‘err’);return;}
-Quagga.start();camActive=true;document.getElementById(‘interactive’).style.display=‘block’;document.getElementById(‘scanOv’).classList.add(‘show’);
+Quagga.start();camActive=true;document.getElementById('interactive').style.display=‘block’;document.getElementById(‘scanOv’).classList.add(‘show’);
 });
 Quagga.offDetected();
 Quagga.onDetected(result=>{
