@@ -257,7 +257,7 @@ transition:background-color 5000s ease-in-out 0s;
         placeholder="kullanıcı adı"
         autocomplete="off" autocapitalize="none"
         autocorrect="off" spellcheck="false"
-        onkeyup="if(event.keyCode===13)tryLogin()">
+        oninput="checkLoginFields()">
     </div>
     <div class="login-field">
       <label class="login-label">Şifre</label>
@@ -266,7 +266,7 @@ transition:background-color 5000s ease-in-out 0s;
           placeholder="şifre"
           autocomplete="off"
           style="padding-right:80px"
-          onkeyup="if(event.keyCode===13)tryLogin()">
+          oninput="checkLoginFields()">
         <span
           style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#00d4ff;font-size:12px;font-weight:700;cursor:pointer;-webkit-user-select:none;user-select:none;letter-spacing:.5px"
           onclick="var p=document.getElementById('loginPass');var s=this;if(p.type==='password'){p.type='text';s.textContent='GİZLE';s.style.color='#00ff9d';}else{p.type='password';s.textContent='GÖSTER';s.style.color='#00d4ff';}">
@@ -275,10 +275,11 @@ transition:background-color 5000s ease-in-out 0s;
       </div>
     </div>
     <div id="loginErr" style="color:#ff4757;font-size:13px;text-align:center;min-height:20px;margin:8px 0"></div>
-    <button type="button" class="login-btn" onclick="tryLogin()">GİRİŞ YAP</button>
+    <!-- Uygulamaya Git butonu — JS ile render edilir -->
+    <div id="loginBtnWrap"></div>
     <div style="margin-top:20px;text-align:center;color:#3d5470;font-size:10px;letter-spacing:1px">
       Sayım✦ v8.0.0 · 2026.04<br>
-      <span style="font-size:9px">© Teleperformance Türkiye</span>
+      <span style="font-size:9px">by Semra Türkmen</span>
     </div>
   </div>
 </div>
@@ -463,7 +464,7 @@ transition:background-color 5000s ease-in-out 0s;
     </div>
   </div>
   <input type="text" class="search-input" id="pcSearch" placeholder="Ürün ara..." oninput="renderProducts()">
-  <div style="color:var(--muted2);font-size:10px;text-align:right;margin-bottom:8px;letter-spacing:.5px">Sayım✦ v8.0.0</div>
+  <div style="color:var(--muted2);font-size:10px;text-align:right;margin-bottom:8px;letter-spacing:.5px">Sayım✦ v8.0.0 · by Semra Türkmen</div>
   <div id="productList"></div>
 </div>
 
@@ -715,20 +716,34 @@ function doLogout(){
   document.getElementById('loginPass').value='';
 }
 
-function startApp(){
+function startApp(goSettings) {
   document.getElementById('loginScreen').classList.add('hide');
-  document.getElementById('appShell').style.display='block';
-  document.getElementById('hdrUserName').textContent=currentUser.name.split(' ')[0];
-  document.getElementById('hdrUserRole').textContent=currentUser.role==='admin'?'ADMIN':'USER';
-  if(currentUser.role==='admin')document.getElementById('configTab').style.display='';
-  else document.getElementById('configTab').style.display='none';
-  // Ayarlar'a kullanıcı bilgilerini yükle
+  document.getElementById('appShell').style.display = 'block';
+  document.getElementById('hdrUserName').textContent = currentUser.name ? currentUser.name.split(' ')[0] : currentUser.username;
+  document.getElementById('hdrUserRole').textContent = currentUser.role === 'admin' ? 'ADMIN' : 'USER';
+  if (currentUser.role === 'admin') document.getElementById('configTab').style.display = '';
+  else document.getElementById('configTab').style.display = 'none';
   loadMetaFromUser();
   renderScanForm();
   renderFCRows();
   renderProducts();
   updateCount();
-  renderScanForm();
+  // Misafir veya kullanıcı bulunamazsa ayarlara yönlendir
+  if (goSettings || (currentUser && currentUser.isGuest)) {
+    var settingsTab = document.querySelector('.tab[onclick*="settings"]');
+    if (settingsTab) switchTab('settings', settingsTab);
+    setTimeout(function() {
+      showFlashSettings('⚠️ Lütfen lokasyon ve sayım bilgilerinizi doldurun');
+    }, 400);
+  }
+}
+
+function showFlashSettings(msg) {
+  var el = document.getElementById('settingsFlash');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(function(){ el.style.display = 'none'; }, 5000);
 }
 
 function loadMetaFromUser(){
