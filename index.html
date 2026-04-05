@@ -250,15 +250,18 @@ transition:background-color 5000s ease-in-out 0s;
   <div class="login-logo">✦</div>
   <div class="login-title">Sayım✦</div>
   <div class="login-sub">Stok Sayım Sistemi</div>
+
   <div class="login-card">
+    
     <div class="login-field">
       <label class="login-label">Kullanıcı Adı</label>
       <input type="text" class="login-input" id="loginUser"
         placeholder="kullanıcı adı"
         autocomplete="off" autocapitalize="none"
         autocorrect="off" spellcheck="false"
-        onkeyup="if(event.keyCode===13)tryLogin()">
+        onkeyup="if(event.key === 'Enter') tryLogin()">
     </div>
+
     <div class="login-field">
       <label class="login-label">Şifre</label>
       <div style="position:relative">
@@ -266,18 +269,30 @@ transition:background-color 5000s ease-in-out 0s;
           placeholder="şifre"
           autocomplete="off"
           style="padding-right:80px"
-          onkeyup="if(event.keyCode===13)tryLogin()">
+          onkeyup="if(event.key === 'Enter') tryLogin()">
+
         <span
           style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#00d4ff;font-size:12px;font-weight:700;cursor:pointer;-webkit-user-select:none;user-select:none;letter-spacing:.5px"
-          onclick="var p=document.getElementById('loginPass');var s=this;if(p.type==='password'){p.type='text';s.textContent='GİZLE';s.style.color='#00ff9d';}else{p.type='password';s.textContent='GÖSTER';s.style.color='#00d4ff';}">
+          onclick="togglePassword()">
           GÖSTER
         </span>
+
       </div>
     </div>
-    <div id="loginErr" style="color:#ff4757;font-size:13px;text-align:center;min-height:20px;margin:8px 0"></div>
-    <button type="button" class="login-btn" onclick="tryLogin()">GİRİŞ YAP</button>
+
+    <div id="loginErr"
+      style="color:#ff4757;font-size:13px;text-align:center;min-height:20px;margin:8px 0">
+    </div>
+
+    <button type="button" class="login-btn" onclick="tryLogin()">
+      GİRİŞ YAP
+    </button>
+
   </div>
 </div>
+
+
+
 
 <!-- ═══════════ APP ═══════════ -->
 
